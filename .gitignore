@@ -1,0 +1,9 @@
+.ipynb_checkpoints
+.idea
+
+konduit.jar
+konduit-serving.pid 
+config.json
+
+*.log
+*.iml
