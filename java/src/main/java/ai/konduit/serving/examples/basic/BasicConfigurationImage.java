@@ -1,4 +1,4 @@
-package ai.konduit.serving.basic;
+package ai.konduit.serving.examples.basic;
 
 import ai.konduit.serving.pipeline.step.ImageLoadingStep;
 import org.datavec.api.writable.NDArrayWritable;

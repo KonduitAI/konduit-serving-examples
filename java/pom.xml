@@ -1,41 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.deeplearning4j</groupId>
-    <artifactId>dl4j-quickstart</artifactId>
-    <version>1.0.0-beta5</version>
-    <packaging>jar</packaging>
+
+    <groupId>ai.konduit.serving.examples</groupId>
+    <artifactId>konduit-serving-examples</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <name>konduit-serving-examples</name>
+
     <properties>
-        <dl4j.version>1.0.0-beta5</dl4j.version>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <scala.binary.version>2.11</scala.binary.version>
+        <konduit.serving.version>1.2.1</konduit.serving.version>
     </properties>
+
     <dependencies>
         <dependency>
-            <groupId>org.nd4j</groupId>
-            <!-- Use nd4j-native-platform for CPU and nd4j-cuda-8.0-platform or nd4j-cuda-9.2-platform for GPU -->
-            <!-- Note: Some use-cases (like Word2Vec work better with CPU) -->
-            <artifactId>nd4j-native-platform</artifactId>
-            <version>${dl4j.version}</version>
+            <groupId>ai.konduit.serving</groupId>
+            <artifactId>konduit-serving-core</artifactId>
+            <version>${konduit.serving.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-core</artifactId>
-            <version>${dl4j.version}</version>
+            <groupId>ai.konduit.serving</groupId>
+            <artifactId>konduit-serving-native</artifactId>
+            <version>${konduit.serving.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-ui_${scala.binary.version}</artifactId>
-            <version>${dl4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-zoo</artifactId>
-            <version>${dl4j.version}</version>
+            <groupId>ai.konduit.serving</groupId>
+            <artifactId>konduit-serving-python</artifactId>
+            <version>${konduit.serving.version}</version>
         </dependency>
     </dependencies>
-    <build>
-        <finalName>dl4j-quickstart</finalName>
-    </build>
+
 </project>
