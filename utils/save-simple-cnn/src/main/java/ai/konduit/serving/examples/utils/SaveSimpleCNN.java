@@ -1,4 +1,6 @@
-package org.deeplearning4j; /*******************************************************************************
+package ai.konduit.serving.examples.utils;
+
+/*******************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
