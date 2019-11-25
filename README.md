@@ -29,8 +29,8 @@ Detailed installation steps are available [here](https://serving.oss.konduit.ai/
 
 ### Python
 1. Serving a model built with TensorFlow 1.x
-  - [01_tensorflow-basic-mnist.ipynb](notebooks/01_tensorflow-basic-mnist.ipynb)
-  - [02_tensorflow-basic-bert.ipynb](notebooks/02_tensorflow-basic-bert.ipynb)
+    - [01_tensorflow-basic-mnist.ipynb](notebooks/01_tensorflow-basic-mnist.ipynb)
+    - [02_tensorflow-basic-bert.ipynb](notebooks/02_tensorflow-basic-bert.ipynb)
 2. Serving a model built with Deeplearning4j: [03_deeplearning4j-multilayernetwork.ipynb](notebooks/03_deeplearning4j-multilayernetwork.ipynb)
 
 ### Java 
