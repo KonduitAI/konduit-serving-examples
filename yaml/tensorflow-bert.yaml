@@ -19,6 +19,6 @@ steps:
       IteratorGetNext:1: INT32
       IteratorGetNext:4: INT32
     parallel_inference_config:
-      workers: 2
+      workers: 1
 client:
     port: 1337
