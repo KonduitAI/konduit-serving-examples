@@ -1,0 +1,18 @@
+serving:
+  http_port: 1337
+  input_data_format: NUMPY
+  output_data_format: NUMPY
+  log_timings: True
+  extra_start_args: -Xmx8g
+steps:
+  dl4j_mln_step:
+    type: MULTI_LAYER_NETWORK
+    model_loading_path: ../data/multilayernetwork/SimpleCNN.zip
+    input_names: 
+    - image_array
+    output_names: 
+    - output
+    input_data_types:
+      image_array: FLOAT
+client:
+    port: 1337
