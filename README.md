@@ -32,6 +32,7 @@ Detailed installation steps are available [here](https://serving.oss.konduit.ai/
     - [01_tensorflow-basic-mnist.ipynb](notebooks/01_tensorflow-basic-mnist.ipynb)
     - [02_tensorflow-basic-bert.ipynb](notebooks/02_tensorflow-basic-bert.ipynb)
 2. Serving a model built with Deeplearning4j: [03_deeplearning4j-multilayernetwork.ipynb](notebooks/03_deeplearning4j-multilayernetwork.ipynb)
+2. Serving a DataVec TransformProcess: [04_datavec-etl.ipynb](notebooks/04_datavec-etl.ipynb)
 2. Serving an ONNX model file with ONNX Runtime (PyTorch, CNTK, MXNet)
    - PyTorch: [05_onnx_pytorch.ipynb](notebooks/05_onnx_pytorch.ipynb)
 
