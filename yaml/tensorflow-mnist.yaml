@@ -2,7 +2,7 @@ serving:
   http_port: 1337
   input_data_format: NUMPY
   output_data_format: NUMPY
-  log_timings: False
+  log_timings: True
   extra_start_args: -Xmx8g
 steps:
   tensorflow_step:
