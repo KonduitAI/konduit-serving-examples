@@ -1,0 +1,39 @@
+serving:
+  http_port: 1337
+  input_data_format: JSON
+  output_data_format: JSON
+  log_timings: True
+  extra_start_args: -Xmx8g
+steps:
+  transform_process_step:
+    inputColumnNames:
+      default:
+      - first
+    inputNames:
+    - default
+    inputSchemas:
+      default:
+      - String
+    outputColumnNames:
+      default:
+      - first
+    outputNames:
+    - default
+    outputSchemas:
+      default:
+      - String
+    transformProcesses:
+      default:
+        actionList:
+        - transform:
+            '@class': org.datavec.api.transform.transform.string.AppendStringColumnTransform
+            columnName: first
+            toAppend: two
+        initialSchema:
+          '@class': org.datavec.api.transform.schema.Schema
+          columns:
+          - '@class': org.datavec.api.transform.metadata.StringMetaData
+            name: first
+          
+client:
+    port: 1337

@@ -1,0 +1,13 @@
+serving:
+  http_port: 1337
+steps:
+  keras_step:
+    type: KERAS
+    model_loading_path: ../data/keras/embedding_lstm_tensorflow_2.h5
+    input_names:
+    - input 
+    output_names:
+    - lstm_1
+
+client:
+    port: 1337

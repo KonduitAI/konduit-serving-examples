@@ -1,0 +1,17 @@
+serving:
+  http_port: 1337
+  input_data_format: NUMPY
+  output_data_format: NUMPY
+  log_timings: True
+  extra_start_args: -Xmx8g
+steps:
+  python_step:
+    type: PYTHON
+    python_path: .
+    python_code_path: ../python/simple.py
+    python_inputs:
+      first: NDARRAY
+    python_outputs:
+      second: NDARRAY
+client:
+    port: 1337
