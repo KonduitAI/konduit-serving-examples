@@ -29,7 +29,9 @@ Detailed installation steps are available [here](https://serving.oss.konduit.ai/
 ## Examples
 
 ### Python
-1. Serving a YAML configuration: [00_serve-from-yaml.ipynb](notebooks/00_serve-from-yaml.ipynb)
+1. Serving a YAML configuration: 
+    - Command line: [00a_serve-from-yaml_cli.ipynb](notebooks/00a_serve-from-yaml_cli.ipynb)
+    - Python: [00b_serve-from-yaml_py.ipynb](notebooks/00b_serve-from-yaml_py.ipynb)
 2. Serving a model built with TensorFlow 1.x
     - [01_tensorflow-basic-mnist.ipynb](notebooks/01_tensorflow-basic-mnist.ipynb)
     - [02_tensorflow-basic-bert.ipynb](notebooks/02_tensorflow-basic-bert.ipynb)
