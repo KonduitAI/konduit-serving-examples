@@ -21,4 +21,5 @@ steps:
     parallel_inference_config:
       workers: 1
 client:
-    port: 1337
+  input_data_format: NUMPY
+  port: 1337
