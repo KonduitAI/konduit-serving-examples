@@ -4,7 +4,7 @@ Prometheus and Grafana can be used for displaying metrics to assist with trouble
 
 ## Prometheus 
 
-Prometheus is a widely used time series database for tracking system metrics used for debugging production systems. This includes common metrics used to troubleshoot an application's problems in production such as:
+Prometheus is a widely used time series database for tracking system metrics used for debugging production systems. This includes common metrics used to troubleshoot an problems with production applications such as:
 
 - Out of memory
 - Latency
@@ -12,7 +12,7 @@ Prometheus is a widely used time series database for tracking system metrics use
 For machine learning, we may include other metrics to help debug things such as:
 
 - Compute time for neural net
-- ETL creation (amount of time it takes to convert raw data to a minibatch or NumPy ndarray)
+- ETL creation (number of times it takes to convert raw data to a minibatch or NumPy ndarray)
 
 A Prometheus instance is configured by a YAML file such as:
 
@@ -35,7 +35,7 @@ Prometheus works by pulling data from the specified sources. A Konduit Serving i
 
 [Grafana](https://grafana.com) is a dashboard system for pulling data from different sources and displaying it in real time. It can be used to visualize output from Prometheus. 
 
-Grafana allows you to declare a dashboard as a JSON file which can be imported into Grafana.  An imported Grafana dashboard will show some pre-configured metrics from Grafana automatically. You can always extend/add more metrics in the Grafana GUI and re-export the configuration.
+Grafana allows you to declare a dashboard as a JSON file.  An imported Grafana dashboard will show some pre-configured metrics. You can always extend/add more metrics in the Grafana GUI and re-export the configuration.
 
 ## Installation 
 
