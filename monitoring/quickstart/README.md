@@ -1,5 +1,42 @@
 # Model monitoring with Konduit Serving
 
+Prometheus and Grafana can be used for displaying metrics to assist with troubleshooting production systems. 
+
+## Prometheus 
+
+Prometheus is a widely used time series database for tracking system metrics used for debugging production systems. This includes common metrics used to troubleshoot an application's problems in production such as:
+
+- Out of memory
+- Latency
+
+For machine learning, we may include other metrics to help debug things such as:
+
+- Compute time for neural net
+- ETL creation (amount of time it takes to convert raw data to a minibatch or NumPy ndarray)
+
+A Prometheus instance is configured by a YAML file such as:
+
+```
+#Global configurations
+global:
+  scrape_interval:     5s # Set the scrape interval to every 5 seconds.
+  evaluation_interval: 5s # Evaluate rules every 5 seconds.
+scrape_configs:
+  - job_name: 'scrape'
+    static_configs:
+    - targets: [ 'pipeline:65322']
+```
+
+The main component to configure is the "targets". The targets section is where you specify the source to pull data from.
+
+Prometheus works by pulling data from the specified sources. A Konduit Serving instance exposes metrics to be picked up by Prometheus from `http://<hostname>:<port>/metrics`.
+
+## Grafana
+
+[Grafana](https://grafana.com) is a dashboard system for pulling data from different sources and displaying it in real time. It can be used to visualize output from Prometheus. 
+
+Grafana allows you to declare a dashboard as a JSON file which can be imported into Grafana.  An imported Grafana dashboard will show some pre-configured metrics from Grafana automatically. You can always extend/add more metrics in the Grafana GUI and re-export the configuration.
+
 ## Installation 
 
 - **Konduit Serving**: Follow the installation steps available at https://serving.oss.konduit.ai/installation to build a Konduit Serving JAR file and install the `konduit` Python module.
