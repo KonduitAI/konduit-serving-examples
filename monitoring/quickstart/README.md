@@ -4,7 +4,7 @@ Prometheus and Grafana can be used for displaying metrics to assist with trouble
 
 ## Prometheus 
 
-Prometheus is a widely used time series database for tracking system metrics used for debugging production systems. This includes common metrics used to troubleshoot an problems with production applications such as:
+Prometheus is a widely used time series database for tracking system metrics used for debugging production systems. This includes common metrics used to troubleshoot problems with production applications such as:
 
 - Out of memory
 - Latency
