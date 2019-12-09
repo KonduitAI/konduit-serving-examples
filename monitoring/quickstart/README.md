@@ -16,7 +16,7 @@ For machine learning, we may include other metrics to help debug things such as:
 
 A Prometheus instance is configured by a YAML file such as:
 
-```
+```yaml
 #Global configurations
 global:
   scrape_interval:     5s # Set the scrape interval to every 5 seconds.
