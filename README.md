@@ -40,6 +40,8 @@ Detailed installation steps are available [here](https://serving.oss.konduit.ai/
 5. Serving an ONNX model file with ONNX Runtime (PyTorch, CNTK, MXNet)
    - PyTorch: [05_onnx_pytorch.ipynb](notebooks/05_onnx_pytorch.ipynb)
 6. Serving a Keras model: [06_keras.ipynb](notebooks/06_keras.ipynb)
+7. Model monitoring
+    1. Quickstart: [monitoring/quickstart](monitoring/quickstart)
 
 ### Java 
 1. Configuring a DataVec transform process: [BasicConfiguration.java](java/src/main/java/ai/konduit/serving/examples/basic/BasicConfiguration.java)
