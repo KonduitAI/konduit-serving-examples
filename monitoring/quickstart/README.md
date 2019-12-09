@@ -53,6 +53,8 @@ In this folder, run the following in a command line
 konduit serve --config ../../yaml/simple.yaml
 ```
 
+This creates a local Konduit Serving instance using the YAML configuration file [simple.yaml](../../yaml/simple.yaml) at port 1337. 
+
 ### Start Prometheus server 
 
 In this example, we use Prometheus to monitor the Konduit Serving instance. 
