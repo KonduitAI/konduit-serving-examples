@@ -11,25 +11,25 @@ Prometheus is a widely used time series database for tracking system metrics use
 
 For machine learning, we may include other metrics to help debug things such as:
 
-- Compute time for neural net
+- Compute time for a neural net
 - ETL creation (number of times it takes to convert raw data to a minibatch or NumPy ndarray)
 
-A Prometheus instance is configured by a YAML file such as:
+Prometheus works by pulling data from the specified sources. A Prometheus instance is configured by a YAML file such as:
 
 ```yaml
-#Global configurations
+# Global configurations
 global:
   scrape_interval:     5s # Set the scrape interval to every 5 seconds.
   evaluation_interval: 5s # Evaluate rules every 5 seconds.
 scrape_configs:
   - job_name: 'scrape'
     static_configs:
-    - targets: [ 'pipeline:65322']
+    - targets: [ 'localhost:65322']
 ```
 
-The main component to configure is the "targets". The targets section is where you specify the source to pull data from.
+This YAML file contains a global configuration and a [`scrap_config`](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config) section. See [Prometheus's configuration documentation](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config) for details. 
 
-Prometheus works by pulling data from the specified sources. A Konduit Serving instance exposes metrics to be picked up by Prometheus from `http://<hostname>:<port>/metrics`.
+The main component to configure is `targets`. `targets` is where you specify the source to pull data from. A Konduit Serving instance exposes metrics to be picked up by Prometheus from `http://<hostname>:<port>/metrics`.
 
 ## Grafana
 
