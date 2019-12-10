@@ -61,6 +61,8 @@ Grafana allows you to declare a dashboard as a JSON file.  An imported Grafana d
 
 ## Usage 
 
+The following instructions assume that you're in the [monitoring/quickstart directory](https://github.com/KonduitAI/konduit-serving-examples/tree/master/monitoring/quickstart) of the [KonduitAI/konduit-serving-examples](https://github.com/KonduitAI/konduit-serving-examples/) repository. 
+
 ### Start Konduit server 
 
 In this folder, run the following in a command line 
