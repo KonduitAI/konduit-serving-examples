@@ -8,7 +8,6 @@ steps:
   python_step:
     type: PYTHON
     python_code: |
-      import numpy as np
       first += 2
       second = first
     python_inputs:
