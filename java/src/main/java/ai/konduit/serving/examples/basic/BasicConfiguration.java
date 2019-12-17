@@ -54,7 +54,7 @@ public class BasicConfiguration {
         /*
          * Now creating a test record input
          */
-        Writable[][] output = transformProcessStep.getRunner().transform(
+        Writable[][] output = transformProcessStep.createRunner().transform(
                 Nd4j.rand(10, 10).muli(100),
                 Nd4j.rand(5, 5).muli(100),
                 Nd4j.ones(2, 2));

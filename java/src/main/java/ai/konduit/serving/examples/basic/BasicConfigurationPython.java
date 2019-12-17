@@ -39,7 +39,7 @@ public class BasicConfigurationPython {
 
         PythonStep pythonPipelineStep = new PythonStep().step(pythonConfig);
 
-        Writable[][] output = pythonPipelineStep.getRunner().transform(npyFile);
+        Writable[][] output = pythonPipelineStep.createRunner().transform(npyFile);
 
         INDArray image = ((NDArrayWritable) output[0][0]).get();
 
