@@ -28,7 +28,7 @@ public class BasicConfigurationImage {
 
         String imagePath =  new ClassPathResource("images/COCO_train2014_000000000009.jpg").getFile().getAbsolutePath();
 
-        Writable[][] output = imageLoadingStep.getRunner().transform(imagePath);
+        Writable[][] output = imageLoadingStep.createRunner().transform(imagePath);
 
         INDArray image = ((NDArrayWritable) output[0][0]).get();
 
