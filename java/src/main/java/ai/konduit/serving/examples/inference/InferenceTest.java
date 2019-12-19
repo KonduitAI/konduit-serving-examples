@@ -1,4 +1,4 @@
-package inference;
+package ai.konduit.serving.examples.inference;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
