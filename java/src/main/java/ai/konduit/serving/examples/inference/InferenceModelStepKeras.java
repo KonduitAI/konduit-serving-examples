@@ -1,4 +1,4 @@
-package inference;
+package ai.konduit.serving.examples.inference;
 
 import ai.konduit.serving.InferenceConfiguration;
 import ai.konduit.serving.config.Input;
@@ -19,24 +19,29 @@ import java.nio.charset.Charset;
 public class InferenceModelStepKeras {
     public static void main(String[] args) throws Exception {
 
+        //File path for model
         String kerasmodelfilePath = new ClassPathResource("data/keras/embedding_lstm_tensorflow_2.h5").
                 getFile().getAbsolutePath();
 
+        //Model config and set model type as KERAS
         ModelConfig kerasModelConfig = ModelConfig.builder()
                 .modelConfigType(ModelConfigType.builder().
                         modelLoadingPath(kerasmodelfilePath).
                         modelType(ModelConfig.ModelType.KERAS).build())
                 .build();
 
+        //Set the configuration of model to step
         ModelStep kerasmodelStep = ModelStep.builder()
                 .modelConfig(kerasModelConfig)
                 .inputName("input")
                 .outputName("lstm_1")
                 .build();
 
+        //ServingConfig set httpport and Input Formats
         ServingConfig servingConfig = ServingConfig.builder().httpPort(3000).
                 inputDataFormat(Input.DataFormat.ND4J).
                 outputDataFormat(Output.DataFormat.JSON).
+                predictionType(Output.PredictionType.RAW).
                  build();
 
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
