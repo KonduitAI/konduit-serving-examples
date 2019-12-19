@@ -9,3 +9,5 @@ config.json
 *.iml
 
 target
+
+test-input*.zip

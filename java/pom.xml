@@ -36,35 +36,17 @@
     <name>konduit-serving-examples</name>
 
     <properties>
-        <konduit.serving.version>1.2.1</konduit.serving.version>
-        <netty.version>4.1.42.Final</netty.version>
-        <vertx-stack.version>3.8.3</vertx-stack.version>
-        <logback.version>1.2.3</logback.version>
-        <micrometer.version>1.2.0</micrometer.version>
+        <konduit.serving.version>0.1.0-SNAPSHOT</konduit.serving.version>
+        <konduit.serving.classifier>bin</konduit.serving.classifier>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>ai.konduit.serving</groupId>
-            <artifactId>konduit-serving-core</artifactId>
-            <version>${konduit.serving.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ai.konduit.serving</groupId>
-            <artifactId>konduit-serving-native</artifactId>
-            <version>${konduit.serving.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ai.konduit.serving</groupId>
-            <artifactId>konduit-serving-python</artifactId>
-            <version>${konduit.serving.version}</version>
-        </dependency>
-        <dependency>
             <artifactId>konduit-serving-uberjar</artifactId>
-            <groupId>ai.konduit.serving</groupId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>${konduit.serving.version}</version>
+            <classifier>${konduit.serving.classifier}</classifier>
         </dependency>
-
     </dependencies>
 
 </project>
