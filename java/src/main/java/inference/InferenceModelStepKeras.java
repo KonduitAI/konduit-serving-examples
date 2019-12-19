@@ -24,7 +24,7 @@ public class InferenceModelStepKeras {
 
         ModelConfig kerasModelConfig = ModelConfig.builder()
                 .modelConfigType(ModelConfigType.builder().
-                        modelLoadingPath(kerasmodelfilePath.toString()).
+                        modelLoadingPath(kerasmodelfilePath).
                         modelType(ModelConfig.ModelType.KERAS).build())
                 .build();
 
