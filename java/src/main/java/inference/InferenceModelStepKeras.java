@@ -1,4 +1,4 @@
-package ai.konduit.serving.example.inference;
+package inference;
 
 import ai.konduit.serving.InferenceConfiguration;
 import ai.konduit.serving.config.Input;
