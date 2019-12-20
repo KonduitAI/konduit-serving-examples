@@ -21,10 +21,10 @@ package ai.konduit.serving.examples.inference;
 import ai.konduit.serving.InferenceConfiguration;
 import ai.konduit.serving.config.Input;
 import ai.konduit.serving.config.Output;
+import ai.konduit.serving.config.ParallelInferenceConfig;
 import ai.konduit.serving.config.ServingConfig;
 import ai.konduit.serving.configprovider.KonduitServingMain;
-import ai.konduit.serving.model.ModelConfig;
-import ai.konduit.serving.model.ModelConfigType;
+import ai.konduit.serving.model.*;
 import ai.konduit.serving.pipeline.step.ModelStep;
 import org.apache.commons.io.FileUtils;
 import org.nd4j.linalg.io.ClassPathResource;
@@ -32,48 +32,58 @@ import org.nd4j.linalg.io.ClassPathResource;
 import javax.annotation.concurrent.NotThreadSafe;
 import java.io.File;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
 
 @NotThreadSafe
-public class InferenceModelStepKeras {
+public class InferenceModelStepMNIST {
     public static void main(String[] args) throws Exception {
 
-        //File path for model
-        String kerasmodelfilePath = new ClassPathResource("data/keras/embedding_lstm_tensorflow_2.h5").
-                getFile().getAbsolutePath();
+        String tensorflow_version = "2.0.0";
+        String mnistmodelfilePath = new ClassPathResource("data/mnist/mnist_"+tensorflow_version+".pb").getFile().getAbsolutePath();
 
-        //Model config and set model type as KERAS
-        ModelConfig kerasModelConfig = ModelConfig.builder()
+        HashMap<String, TensorDataType> input_data_types=new HashMap();
+        input_data_types.put("input_layer", TensorDataType.FLOAT);
+
+        ModelConfig mnistModelConfig = TensorFlowConfig.builder()
+                .tensorDataTypesConfig(TensorDataTypesConfig.builder().
+                        inputDataTypes(input_data_types).build())
+
                 .modelConfigType(ModelConfigType.builder().
-                        modelLoadingPath(kerasmodelfilePath).
-                        modelType(ModelConfig.ModelType.KERAS).build())
+                        modelLoadingPath(mnistmodelfilePath.toString()).
+                        modelType(ModelConfig.ModelType.TENSORFLOW).build())
                 .build();
 
-        //Set the configuration of model to step
-        ModelStep kerasmodelStep = ModelStep.builder()
-                .modelConfig(kerasModelConfig)
-                .inputName("input")
-                .outputName("lstm_1")
+        List<String> input_names = new ArrayList<String>(input_data_types.keySet());
+        ArrayList<String> output_names=new ArrayList<>();
+        output_names.add("output_layer/Softmax");
+        int port = Util.randInt(1000, 65535);
+
+        ModelStep bertModelStep = ModelStep.builder()
+                .modelConfig(mnistModelConfig)
+                .inputNames(input_names)
+                .outputNames(output_names)
+                .parallelInferenceConfig(ParallelInferenceConfig.builder().workers(1).build())
                 .build();
 
-        //ServingConfig set httpport and Input Formats
-        ServingConfig servingConfig = ServingConfig.builder().httpPort(3000).
-                inputDataFormat(Input.DataFormat.ND4J).
-                outputDataFormat(Output.DataFormat.JSON).
-                predictionType(Output.PredictionType.RAW).
-                 build();
+        ServingConfig servingConfig = ServingConfig.builder().httpPort(port).
+                inputDataFormat(Input.DataFormat.NUMPY).
+                outputDataFormat(Output.DataFormat.NUMPY).
+                build();
 
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
                 .servingConfig(servingConfig)
-                .step(kerasmodelStep)
+                .step(bertModelStep)
                 .build();
+
         System.out.println(inferenceConfiguration.toJson());
 
         File configFile = new File("config.json");
         FileUtils.write(configFile, inferenceConfiguration.toJson(), Charset.defaultCharset());
-
         KonduitServingMain.main("--configPath", configFile.getAbsolutePath());
 
         Thread.sleep(3600000);
-
-       }
+    }
 }
