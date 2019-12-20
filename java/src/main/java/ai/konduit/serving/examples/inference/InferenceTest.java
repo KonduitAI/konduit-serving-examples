@@ -20,6 +20,6 @@ public class InferenceTest {
 
         System.out.println(Unirest.post("http://localhost:3000/raw/nd4j")
                 .field("input", file)
-                .asString().getBody());
+                .asJson().getBody());
     }
 }
