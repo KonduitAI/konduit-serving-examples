@@ -25,6 +25,8 @@ import ai.konduit.serving.config.ServingConfig;
 import ai.konduit.serving.configprovider.KonduitServingMain;
 import ai.konduit.serving.model.ModelConfig;
 import ai.konduit.serving.model.ModelConfigType;
+import ai.konduit.serving.model.TensorDataType;
+import ai.konduit.serving.model.TensorDataTypesConfig;
 import ai.konduit.serving.pipeline.step.ModelStep;
 import org.apache.commons.io.FileUtils;
 import org.nd4j.linalg.io.ClassPathResource;
@@ -32,48 +34,61 @@ import org.nd4j.linalg.io.ClassPathResource;
 import javax.annotation.concurrent.NotThreadSafe;
 import java.io.File;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import java.util.Random;
+
 
 @NotThreadSafe
-public class InferenceModelStepKeras {
+public class InferenceModelStepDL4J {
     public static void main(String[] args) throws Exception {
 
-        //File path for model
-        String kerasmodelfilePath = new ClassPathResource("data/keras/embedding_lstm_tensorflow_2.h5").
+        String dl4jmodelfilePath = new ClassPathResource("data/multilayernetwork/SimpleCNN.zip").
                 getFile().getAbsolutePath();
 
-        //Model config and set model type as KERAS
-        ModelConfig kerasModelConfig = ModelConfig.builder()
+        Map<String, TensorDataType> input_data_types = new HashMap<>();
+        input_data_types.put("image_array", TensorDataType.FLOAT);
+
+        List<String> input_names = new ArrayList<String>(input_data_types.keySet());
+        List<String> output_names = new ArrayList<>();
+        output_names.add("output");
+        int port = Util.randInt(1000, 65535);
+
+        ModelConfig dl4jModelConfig = ModelConfig.builder()
+                .tensorDataTypesConfig(TensorDataTypesConfig.builder().
+                        inputDataTypes(input_data_types).build())
                 .modelConfigType(ModelConfigType.builder().
-                        modelLoadingPath(kerasmodelfilePath).
-                        modelType(ModelConfig.ModelType.KERAS).build())
+                        modelLoadingPath(dl4jmodelfilePath.toString()).
+                        modelType(ModelConfig.ModelType.MULTI_LAYER_NETWORK).build())
                 .build();
 
-        //Set the configuration of model to step
-        ModelStep kerasmodelStep = ModelStep.builder()
-                .modelConfig(kerasModelConfig)
-                .inputName("input")
-                .outputName("lstm_1")
+        ModelStep dl4jModelStep = ModelStep.builder()
+                .modelConfig(dl4jModelConfig)
+                .inputNames(input_names)
+                .outputNames(output_names)
                 .build();
 
-        //ServingConfig set httpport and Input Formats
-        ServingConfig servingConfig = ServingConfig.builder().httpPort(3000).
-                inputDataFormat(Input.DataFormat.ND4J).
-                outputDataFormat(Output.DataFormat.JSON).
-                predictionType(Output.PredictionType.RAW).
-                 build();
+        ServingConfig servingConfig = ServingConfig.builder().httpPort(port).
+                inputDataFormat(Input.DataFormat.NUMPY).
+                outputDataFormat(Output.DataFormat.NUMPY).
+                build();
 
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
                 .servingConfig(servingConfig)
-                .step(kerasmodelStep)
+                .step(dl4jModelStep)
                 .build();
+
+        System.out.println(dl4jModelConfig);
         System.out.println(inferenceConfiguration.toJson());
 
         File configFile = new File("config.json");
         FileUtils.write(configFile, inferenceConfiguration.toJson(), Charset.defaultCharset());
-
         KonduitServingMain.main("--configPath", configFile.getAbsolutePath());
 
         Thread.sleep(3600000);
 
-       }
+    }
 }
