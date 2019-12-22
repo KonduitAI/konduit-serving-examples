@@ -1,18 +1,17 @@
 /*
+ *       Copyright (c) 2019 Konduit AI.
  *
- *  * ******************************************************************************
- *  *  * Copyright (c) 2019 Konduit AI.
- *  *  * This program and the accompanying materials are made available under the
- *  *  * terms of the Apache License, Version 2.0 which is available at
- *  *  * https://www.apache.org/licenses/LICENSE-2.0.
- *  *  *  Unless required by applicable law or agreed to in writing, software
- *  *  *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- *  *  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- *  *  * License for the specific language governing permissions and limitations
- *  *  * under the License.
- *  *  * SPDX-License-Identifier: Apache-2.0
- *  *  *****************************************************************************
+ *       This program and the accompanying materials are made available under the
+ *       terms of the Apache License, Version 2.0 which is available at
+ *       https://www.apache.org/licenses/LICENSE-2.0.
  *
+ *       Unless required by applicable law or agreed to in writing, software
+ *       distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ *       WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ *       License for the specific language governing permissions and limitations
+ *       under the License.
+ *
+ *       SPDX-License-Identifier: Apache-2.0
  *
  */
 
@@ -33,6 +32,10 @@ import javax.annotation.concurrent.NotThreadSafe;
 import java.io.File;
 import java.nio.charset.Charset;
 
+/**
+ * Example for Inference for BERT ML model using Model step .
+ * This illustrates only the server configuration and start server.
+ */
 @NotThreadSafe
 public class InferenceModelStepKeras {
     public static void main(String[] args) throws Exception {
@@ -62,17 +65,23 @@ public class InferenceModelStepKeras {
                 predictionType(Output.PredictionType.RAW).
                  build();
 
+        //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
                 .servingConfig(servingConfig)
                 .step(kerasmodelStep)
                 .build();
+
+        //Print the configuration to make sure our settings correctly set.
         System.out.println(inferenceConfiguration.toJson());
+
 
         File configFile = new File("config.json");
         FileUtils.write(configFile, inferenceConfiguration.toJson(), Charset.defaultCharset());
 
+        //Start inference server as per the above configurations
         KonduitServingMain.main("--configPath", configFile.getAbsolutePath());
 
+        //Set sleep to wait till server started before getting any request from clients.
         Thread.sleep(3600000);
 
        }

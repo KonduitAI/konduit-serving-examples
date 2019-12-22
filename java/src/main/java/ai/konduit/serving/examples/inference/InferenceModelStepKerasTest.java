@@ -18,17 +18,16 @@
 
 package ai.konduit.serving.examples.inference;
 
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.request.body.Body;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.serde.binary.BinarySerde;
 
 import java.io.File;
 
+/**
+ * Example for client test of Inference for BERT ML model using Model step .
+ */
 public class InferenceModelStepKerasTest {
     public static void main(String[] args) throws Exception {
         //Preparing input NDArray
