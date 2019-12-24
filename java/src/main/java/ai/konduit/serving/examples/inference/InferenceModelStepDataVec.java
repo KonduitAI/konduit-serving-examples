@@ -14,66 +14,64 @@
  *       SPDX-License-Identifier: Apache-2.0
  *
  */
-
 package ai.konduit.serving.examples.inference;
 
 import ai.konduit.serving.InferenceConfiguration;
 import ai.konduit.serving.config.Input;
 import ai.konduit.serving.config.Output;
+import ai.konduit.serving.config.SchemaType;
 import ai.konduit.serving.config.ServingConfig;
 import ai.konduit.serving.configprovider.KonduitServingMain;
-import ai.konduit.serving.model.ModelConfig;
-import ai.konduit.serving.model.ModelConfigType;
+import ai.konduit.serving.pipeline.PipelineStep;
 import ai.konduit.serving.pipeline.step.ModelStep;
+import ai.konduit.serving.pipeline.step.TransformProcessStep;
 import org.apache.commons.io.FileUtils;
-import org.nd4j.linalg.io.ClassPathResource;
+import org.datavec.api.transform.TransformProcess;
 
-import javax.annotation.concurrent.NotThreadSafe;
 import java.io.File;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 
 /**
- * Example for Inference for KERAS ML model using Model step .
+ * Example for Inference for DataVec ML model using PipelineStep step .
  * This illustrates only the server configuration and start server.
  */
-@NotThreadSafe
-public class InferenceModelStepKeras {
+public class InferenceModelStepDataVec {
     public static void main(String[] args) throws Exception {
 
-        //File path for model
-        String kerasmodelfilePath = new ClassPathResource("data/keras/embedding_lstm_tensorflow_2.h5").
-                getFile().getAbsolutePath();
+        //TODO yet to test
 
-        //Model config and set model type as KERAS
-        ModelConfig kerasModelConfig = ModelConfig.builder()
-                .modelConfigType(ModelConfigType.builder().
-                        modelLoadingPath(kerasmodelfilePath).
-                        modelType(ModelConfig.ModelType.KERAS).build())
-                .build();
+        HashMap<String, TransformProcess> transformProcess=new HashMap<>();
+        transformProcess.put("first",TransformProcess.fromJson("two"));
 
-        //Set the configuration of model to step
-        ModelStep kerasmodelStep = ModelStep.builder()
-                .modelConfig(kerasModelConfig)
-                .inputName("input")
-                .outputName("lstm_1")
-                .build();
+        String column_names[]=new String[5];
+        column_names[0]="first";
+
+        SchemaType types[]=new SchemaType[5];
+        types[0] = SchemaType.String;
+        String schema="None";
+
+        int port = Util.randInt(1000, 65535);
+
+        //Set the configuration of pipeline to step
+        PipelineStep transform_step= TransformProcessStep.builder().transformProcesses(transformProcess).build()
+                .setInput(schema,column_names,types)
+                .setOutput(schema,column_names,types);
 
         //ServingConfig set httpport and Input Formats
-        ServingConfig servingConfig = ServingConfig.builder().httpPort(3000).
-                inputDataFormat(Input.DataFormat.ND4J).
+        ServingConfig servingConfig = ServingConfig.builder().httpPort(port).
+                inputDataFormat(Input.DataFormat.JSON).
                 outputDataFormat(Output.DataFormat.JSON).
-                predictionType(Output.PredictionType.RAW).
                 build();
 
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
-                .servingConfig(servingConfig)
-                .step(kerasmodelStep)
-                .build();
+                .step(transform_step).servingConfig(servingConfig).build();
 
         //Print the configuration to make sure our settings correctly set.
         System.out.println(inferenceConfiguration.toJson());
-
 
         File configFile = new File("config.json");
         FileUtils.write(configFile, inferenceConfiguration.toJson(), Charset.defaultCharset());
