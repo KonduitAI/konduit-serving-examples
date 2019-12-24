@@ -25,15 +25,22 @@ import org.nd4j.serde.binary.BinarySerde;
 import java.io.File;
 import java.nio.charset.Charset;
 
+/**
+ * Example for client test of Inference for MNIST ML model using Model step .
+ */
 public class InferenceModelStepMNISTTest {
     public static void main(String[] args) throws Exception {
+
+        //Preparing input images.
         String str = new ClassPathResource("images/COCO_train2014_000000000009.jpg").getFile().getAbsolutePath();
 
+        //Create new file for input image data.
         File imageFile= new File (str);
         String output = Unirest.post("http://localhost:3000/RAW/IMAGE")
                 .field("input_layer", imageFile)
                 .asString().getBody();
 
+        //Writing response to output file
         File outputImagePath = new File("src/main/resources/data/test-image-output.zip");
         FileUtils.writeStringToFile(outputImagePath, output, Charset.defaultCharset());
 
