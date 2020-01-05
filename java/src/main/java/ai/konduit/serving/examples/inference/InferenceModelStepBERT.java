@@ -26,13 +26,12 @@ import ai.konduit.serving.config.ServingConfig;
 import ai.konduit.serving.configprovider.KonduitServingMain;
 import ai.konduit.serving.model.ModelConfig;
 import ai.konduit.serving.model.ModelConfigType;
-import ai.konduit.serving.model.TensorDataType;
 import ai.konduit.serving.model.TensorDataTypesConfig;
 import ai.konduit.serving.model.TensorFlowConfig;
 import ai.konduit.serving.pipeline.step.ModelStep;
 import org.apache.commons.io.FileUtils;
 import org.nd4j.linalg.io.ClassPathResource;
-
+import org.nd4j.tensorflow.conversion.TensorDataType;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import java.io.File;
@@ -40,18 +39,29 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 
+
+/**
+ * Example for Inference for BERT ML model using Model step .
+ * This illustrates only the server configuration and start server.
+ */
 @NotThreadSafe
 public class InferenceModelStepBERT {
     public static void main(String[] args) throws Exception {
-        String bertmodelfilePath = new ClassPathResource("data/bert/bert_mrpc_frozen.pb").getFile().getAbsolutePath();
 
+        //File path for model
+      String bertmodelfilePath = new ClassPathResource("data/bert/bert_mrpc_frozen.pb").getFile().getAbsolutePath();
+       System.out.println(bertmodelfilePath);
+    //    File bertmodelfilePath = new File("konduit-serving-examples/src/main/resources/data/bert/bert_mrpc_frozen.pb");
+      //  System.out.println(bertmodelfilePath);
+
+        //Set the tensor input data types
         HashMap<String, TensorDataType> input_data_types=new HashMap();
         input_data_types.put("IteratorGetNext:0", TensorDataType.INT32);
         input_data_types.put("IteratorGetNext:1", TensorDataType.INT32);
         input_data_types.put("IteratorGetNext:4", TensorDataType.INT32);
 
+        //Model config and set model type as BERT
         ModelConfig bertModelConfig = TensorFlowConfig.builder()
                 .tensorDataTypesConfig(TensorDataTypesConfig.builder().
                         inputDataTypes(input_data_types).build())
@@ -60,11 +70,12 @@ public class InferenceModelStepBERT {
                         modelType(ModelConfig.ModelType.TENSORFLOW).build())
                 .build();
 
+	    //Set the input and output names for model step
         List<String> input_names = new ArrayList<String>(input_data_types.keySet());
         ArrayList<String> output_names=new ArrayList<>();
         output_names.add("loss/Softmax");
-        int port = Util.randInt(1000, 65535);
 
+        //Set the configuration of model to step
         ModelStep bertModelStep = ModelStep.builder()
                 .modelConfig(bertModelConfig)
                 .inputNames(input_names)
@@ -72,22 +83,30 @@ public class InferenceModelStepBERT {
                 .parallelInferenceConfig(ParallelInferenceConfig.builder().workers(1).build())
                 .build();
 
+        //ServingConfig set httpport and Input Formats
+        //int port = Util.randInt(1000, 65535);
+        int port = 3000;
         ServingConfig servingConfig = ServingConfig.builder().httpPort(port).
                 inputDataFormat(Input.DataFormat.NUMPY).
                 outputDataFormat(Output.DataFormat.NUMPY).
                 build();
 
+        //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
                 .servingConfig(servingConfig)
                 .step(bertModelStep)
                 .build();
 
+        //Print the configuration to make sure our settings correctly set.
         System.out.println(inferenceConfiguration.toJson());
 
         File configFile = new File("config.json");
         FileUtils.write(configFile, inferenceConfiguration.toJson(), Charset.defaultCharset());
+
+        //Start inference server as per the above configurations
         KonduitServingMain.main("--configPath", configFile.getAbsolutePath());
 
+        //Set sleep to wait till server started before getting any request from clients.
         Thread.sleep(3600000);
     }
 }

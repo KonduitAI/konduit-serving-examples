@@ -18,13 +18,26 @@
 
 package ai.konduit.serving.examples.inference;
 
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.ops.transforms.Transforms;
+
 import java.util.Random;
 
+/**
+ * This util used to create static methods .
+ */
 public class Util {
 
+    //generating the random port for given min and max range.
     public static int randInt(int min, int max) {
         Random rand = new Random();
         int randomNum = rand.nextInt((max - min) + 1) + min;
         return randomNum;
+    }
+
+    // Generate array with random ints between 0 to upper value
+    static INDArray randInt(int [] shape, int upper) {
+        return Transforms.floor(Nd4j.rand(shape).mul(upper)).divi(upper);
     }
 }

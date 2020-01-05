@@ -1,20 +1,3 @@
-/*
- *       Copyright (c) 2019 Konduit AI.
- *
- *       This program and the accompanying materials are made available under the
- *       terms of the Apache License, Version 2.0 which is available at
- *       https://www.apache.org/licenses/LICENSE-2.0.
- *
- *       Unless required by applicable law or agreed to in writing, software
- *       distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- *       WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- *       License for the specific language governing permissions and limitations
- *       under the License.
- *
- *       SPDX-License-Identifier: Apache-2.0
- *
- */
-
 package ai.konduit.serving.examples.inference;
 
 import ai.konduit.serving.InferenceConfiguration;
@@ -40,13 +23,11 @@ import java.util.HashMap;
  */
 class InferenceModelStepONNX {
     public static void main(String[] args) throws Exception {
-
-        //TODO yet to test
         //File path for model
         String working_dir = new ClassPathResource(".").getFile().getAbsolutePath();
         String python_code="";
 	
-	//Set the python inputs and outputs
+	    //Set the python inputs and outputs
         HashMap<String, String> python_inputs=new HashMap<>();
         HashMap<String, String> python_outputs=new HashMap<>();
         python_inputs.put("image", "NDArray");
@@ -68,7 +49,7 @@ class InferenceModelStepONNX {
 
         //ServingConfig set httpport and Input Formats
         int port = Util.randInt(1000, 65535);
-        ServingConfig servingConfig = ServingConfig.builder().httpPort(port).
+        ServingConfig servingConfig = ServingConfig.builder().httpPort(3000).
                 build();
 
         //Inference Configuration
