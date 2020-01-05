@@ -63,7 +63,7 @@ public class InferenceModelStepKeras {
                 inputDataFormat(Input.DataFormat.ND4J).
                 outputDataFormat(Output.DataFormat.JSON).
                 predictionType(Output.PredictionType.RAW).
-                build();
+                 build();
 
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
@@ -84,5 +84,5 @@ public class InferenceModelStepKeras {
         //Set sleep to wait till server started before getting any request from clients.
         Thread.sleep(3600000);
 
-    }
+       }
 }

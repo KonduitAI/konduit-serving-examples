@@ -17,35 +17,68 @@
 
 package ai.konduit.serving.examples.inference;
 
+import ai.konduit.serving.pipeline.step.ImageLoadingStep;
 import com.mashape.unirest.http.Unirest;
-import org.apache.commons.io.FileUtils;
+import org.datavec.api.writable.NDArrayWritable;
+import org.datavec.api.writable.Writable;
+import org.datavec.image.transform.ImageTransformProcess;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.io.ClassPathResource;
-import org.nd4j.serde.binary.BinarySerde;
 
-import java.io.File;
-import java.nio.charset.Charset;
+import java.util.ArrayList;
 
 /**
  * Example for client test of Inference for MNIST ML model using Model step .
  */
 public class InferenceModelStepMNISTTest {
+
     public static void main(String[] args) throws Exception {
 
-        //Preparing input images.
-        String str = new ClassPathResource("images/COCO_train2014_000000000009.jpg").getFile().getAbsolutePath();
+        ImageTransformProcess imageTransformProcess = new ImageTransformProcess.Builder()
+                .scaleImageTransform(20.0f)
+                .resizeImageTransform(28,28)
+                .build();
 
-        //Create new file for input image data.
-        File imageFile= new File (str);
-        String output = Unirest.post("http://localhost:3000/RAW/IMAGE")
-                .field("input_layer", imageFile)
-                .asString().getBody();
+        ImageLoadingStep imageLoadingStep = ImageLoadingStep.builder()
+                .imageProcessingInitialLayout("NCHW")
+                .imageProcessingRequiredLayout("NHWC")
+                .inputName("default")
+                .dimensionsConfig("default", new Long[]{ 240L, 320L, 3L }) // Height, width, channels
+                .imageTransformProcess("default", imageTransformProcess)
+                .build();
 
-        //Writing response to output file
-        File outputImagePath = new File("src/main/resources/data/test-image-output.zip");
-        FileUtils.writeStringToFile(outputImagePath, output, Charset.defaultCharset());
+        ArrayList<INDArray> imageArr=new ArrayList<>();
+        ArrayList<String> inputString=new ArrayList<>();
+        inputString.add("images/one.png");
+        inputString.add("images/seven.png");
+        inputString.add("images/two.png");
 
-        System.out.println(BinarySerde.readFromDisk(outputImagePath));
+        for (String imagePathStr : inputString) {
+            String tmpInput =  new ClassPathResource(imagePathStr).getFile().getAbsolutePath();
+            Writable[][] tmpOutput = imageLoadingStep.createRunner().transform(tmpInput);
+            INDArray tmpImage = ((NDArrayWritable) tmpOutput[0][0]).get();
+            imageArr.add(tmpImage);
+        }
+        System.out.println(imageArr.size());
+       // Plot plt = Plot.create();
+        for (INDArray indArray : imageArr) {
+            String result = Unirest.post("http://localhost:3000/raw/nd4j")
+                    .field("input_layer", indArray)
+                    .asString().getBody();
+            System.out.println("***********************");
+            System.out.println(result);
+        }
+
+
+
+//        //Writing response to output file
+//        File outputImagePath = new File("src/main/resources/data/test-image-output.zip");
+//        FileUtils.writeStringToFile(outputImagePath, result, Charset.defaultCharset());
+//
+//        System.out.println(BinarySerde.readFromDisk(outputImagePath));
 
 
     }
+
+
 }

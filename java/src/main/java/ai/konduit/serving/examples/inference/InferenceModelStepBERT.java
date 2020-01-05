@@ -1,17 +1,18 @@
 /*
- *       Copyright (c) 2019 Konduit AI.
  *
- *       This program and the accompanying materials are made available under the
- *       terms of the Apache License, Version 2.0 which is available at
- *       https://www.apache.org/licenses/LICENSE-2.0.
+ *  * ******************************************************************************
+ *  *  * Copyright (c) 2019 Konduit AI.
+ *  *  * This program and the accompanying materials are made available under the
+ *  *  * terms of the Apache License, Version 2.0 which is available at
+ *  *  * https://www.apache.org/licenses/LICENSE-2.0.
+ *  *  *  Unless required by applicable law or agreed to in writing, software
+ *  *  *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ *  *  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ *  *  * License for the specific language governing permissions and limitations
+ *  *  * under the License.
+ *  *  * SPDX-License-Identifier: Apache-2.0
+ *  *  *****************************************************************************
  *
- *       Unless required by applicable law or agreed to in writing, software
- *       distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- *       WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- *       License for the specific language governing permissions and limitations
- *       under the License.
- *
- *       SPDX-License-Identifier: Apache-2.0
  *
  */
 
@@ -30,7 +31,7 @@ import ai.konduit.serving.model.TensorFlowConfig;
 import ai.konduit.serving.pipeline.step.ModelStep;
 import org.apache.commons.io.FileUtils;
 import org.nd4j.linalg.io.ClassPathResource;
-import  org.nd4j.tensorflow.conversion.TensorDataType;
+import org.nd4j.tensorflow.conversion.TensorDataType;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import java.io.File;
@@ -48,12 +49,14 @@ import java.util.List;
 public class InferenceModelStepBERT {
     public static void main(String[] args) throws Exception {
 
-        //TODO yet to test
         //File path for model
-        String bertmodelfilePath = new ClassPathResource("data/bert/bert_mrpc_frozen.pb").getFile().getAbsolutePath();
+      String bertmodelfilePath = new ClassPathResource("data/bert/bert_mrpc_frozen.pb").getFile().getAbsolutePath();
+       System.out.println(bertmodelfilePath);
+    //    File bertmodelfilePath = new File("konduit-serving-examples/src/main/resources/data/bert/bert_mrpc_frozen.pb");
+      //  System.out.println(bertmodelfilePath);
 
         //Set the tensor input data types
-        HashMap<String, TensorDataType> input_data_types = new HashMap();
+        HashMap<String, TensorDataType> input_data_types=new HashMap();
         input_data_types.put("IteratorGetNext:0", TensorDataType.INT32);
         input_data_types.put("IteratorGetNext:1", TensorDataType.INT32);
         input_data_types.put("IteratorGetNext:4", TensorDataType.INT32);
@@ -67,9 +70,9 @@ public class InferenceModelStepBERT {
                         modelType(ModelConfig.ModelType.TENSORFLOW).build())
                 .build();
 
-        //Set the input and output names for model step
+	    //Set the input and output names for model step
         List<String> input_names = new ArrayList<String>(input_data_types.keySet());
-        ArrayList<String> output_names = new ArrayList<>();
+        ArrayList<String> output_names=new ArrayList<>();
         output_names.add("loss/Softmax");
 
         //Set the configuration of model to step
@@ -81,7 +84,8 @@ public class InferenceModelStepBERT {
                 .build();
 
         //ServingConfig set httpport and Input Formats
-        int port = Util.randInt(1000, 65535);
+        //int port = Util.randInt(1000, 65535);
+        int port = 3000;
         ServingConfig servingConfig = ServingConfig.builder().httpPort(port).
                 inputDataFormat(Input.DataFormat.NUMPY).
                 outputDataFormat(Output.DataFormat.NUMPY).

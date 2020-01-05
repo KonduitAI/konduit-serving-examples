@@ -22,14 +22,13 @@ public class InferenceModelStepImage {
     //File path for model
     public static void main(String[] args) throws IOException, InterruptedException {
 
-
         //Model config and set model type as Image
         ImageLoadingStep imageLoadingStep = ImageLoadingStep.builder()
                 .imageProcessingInitialLayout("NCHW")
                 .imageProcessingRequiredLayout("NHWC")
                 .inputName("imgPath")
                 .outputName("imageArray")
-                .dimensionsConfig("default", new Long[]{240L, 320L, 3L}) // Height, width, channels
+                .dimensionsConfig("default", new Long[]{ 240L, 320L, 3L }) // Height, width, channels
                 .build();
 
         //ServingConfig set httpport and Input Formats
