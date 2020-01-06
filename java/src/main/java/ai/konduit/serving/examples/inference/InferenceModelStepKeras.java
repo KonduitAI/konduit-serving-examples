@@ -33,7 +33,7 @@ import java.io.File;
 import java.nio.charset.Charset;
 
 /**
- * Example for Inference for BERT ML model using Model step .
+ * Example for Inference for KERAS ML model using Model step .
  * This illustrates only the server configuration and start server.
  */
 @NotThreadSafe

@@ -25,7 +25,7 @@ import org.nd4j.serde.binary.BinarySerde;
 import java.io.File;
 
 /**
- * Example for client test of Inference for BERT ML model using Model step .
+ * Example for client test of Inference for Keras ML model using Model step .
  */
 public class InferenceModelStepKerasTest {
     public static void main(String[] args) throws Exception {
