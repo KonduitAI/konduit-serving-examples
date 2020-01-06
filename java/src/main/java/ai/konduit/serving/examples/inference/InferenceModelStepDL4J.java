@@ -1,18 +1,17 @@
 /*
+ *       Copyright (c) 2019 Konduit AI.
  *
- *  * ******************************************************************************
- *  *  * Copyright (c) 2019 Konduit AI.
- *  *  * This program and the accompanying materials are made available under the
- *  *  * terms of the Apache License, Version 2.0 which is available at
- *  *  * https://www.apache.org/licenses/LICENSE-2.0.
- *  *  *  Unless required by applicable law or agreed to in writing, software
- *  *  *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- *  *  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- *  *  * License for the specific language governing permissions and limitations
- *  *  * under the License.
- *  *  * SPDX-License-Identifier: Apache-2.0
- *  *  *****************************************************************************
+ *       This program and the accompanying materials are made available under the
+ *       terms of the Apache License, Version 2.0 which is available at
+ *       https://www.apache.org/licenses/LICENSE-2.0.
  *
+ *       Unless required by applicable law or agreed to in writing, software
+ *       distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ *       WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ *       License for the specific language governing permissions and limitations
+ *       under the License.
+ *
+ *       SPDX-License-Identifier: Apache-2.0
  *
  */
 
@@ -51,11 +50,11 @@ public class InferenceModelStepDL4J {
         String dl4jmodelfilePath = new ClassPathResource("data/multilayernetwork/SimpleCNN.zip").
                 getFile().getAbsolutePath();
 
-	//Set the tensor input data types
+        //Set the tensor input data types
         Map<String, TensorDataType> input_data_types = new HashMap<>();
         input_data_types.put("image_array", TensorDataType.FLOAT);
 
-	//Set the input and output names for model step
+        //Set the input and output names for model step
         List<String> input_names = new ArrayList<String>(input_data_types.keySet());
         List<String> output_names = new ArrayList<>();
         output_names.add("output");

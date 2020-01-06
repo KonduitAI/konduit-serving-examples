@@ -43,11 +43,11 @@ public class InferenceModelStepONNXTest {
                 .imageProcessingInitialLayout("NCHW")
                 .imageProcessingRequiredLayout("NHWC")
                 .inputName("default")
-                .dimensionsConfig("default", new Long[]{ 240L, 320L, 3L }) // Height, width, channels
+                .dimensionsConfig("default", new Long[]{240L, 320L, 3L}) // Height, width, channels
                 .imageTransformProcess("default", imageTransformProcess)
                 .build();
         //Preparing input images.
-        File imagePath =  new File("konduit-serving-examples/src/main/resources/data/facedetector/1.jpg");
+        File imagePath = new File("konduit-serving-examples/src/main/resources/data/facedetector/1.jpg");
 
         Writable[][] output = imageLoadingStep.createRunner().transform(imagePath.toString());
 

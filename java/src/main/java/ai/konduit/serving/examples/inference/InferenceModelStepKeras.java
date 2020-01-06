@@ -61,9 +61,9 @@ public class InferenceModelStepKeras {
         //ServingConfig set httpport and Input Formats
         ServingConfig servingConfig = ServingConfig.builder().httpPort(3000).
                 inputDataFormat(Input.DataFormat.ND4J).
-                outputDataFormat(Output.DataFormat.JSON).
+              //  outputDataFormat(Output.DataFormat.JSON).
                 predictionType(Output.PredictionType.RAW).
-                 build();
+                build();
 
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
@@ -84,5 +84,5 @@ public class InferenceModelStepKeras {
         //Set sleep to wait till server started before getting any request from clients.
         Thread.sleep(3600000);
 
-       }
+    }
 }

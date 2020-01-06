@@ -24,7 +24,9 @@ import org.datavec.api.writable.Writable;
 import org.datavec.image.transform.ImageTransformProcess;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.io.ClassPathResource;
+import org.nd4j.serde.binary.BinarySerde;
 
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -36,34 +38,42 @@ public class InferenceModelStepMNISTTest {
 
         ImageTransformProcess imageTransformProcess = new ImageTransformProcess.Builder()
                 .scaleImageTransform(20.0f)
-                .resizeImageTransform(28,28)
+                .resizeImageTransform(28, 28)
                 .build();
 
         ImageLoadingStep imageLoadingStep = ImageLoadingStep.builder()
                 .imageProcessingInitialLayout("NCHW")
                 .imageProcessingRequiredLayout("NHWC")
                 .inputName("default")
-                .dimensionsConfig("default", new Long[]{ 240L, 320L, 3L }) // Height, width, channels
+                .dimensionsConfig("default", new Long[]{240L, 320L, 3L}) // Height, width, channels
                 .imageTransformProcess("default", imageTransformProcess)
                 .build();
 
-        ArrayList<INDArray> imageArr=new ArrayList<>();
-        ArrayList<String> inputString=new ArrayList<>();
+        ArrayList<INDArray> imageArr = new ArrayList<>();
+        ArrayList<String> inputString = new ArrayList<>();
         inputString.add("images/one.png");
         inputString.add("images/seven.png");
         inputString.add("images/two.png");
 
         for (String imagePathStr : inputString) {
-            String tmpInput =  new ClassPathResource(imagePathStr).getFile().getAbsolutePath();
+            String tmpInput = new ClassPathResource(imagePathStr).getFile().getAbsolutePath();
             Writable[][] tmpOutput = imageLoadingStep.createRunner().transform(tmpInput);
             INDArray tmpImage = ((NDArrayWritable) tmpOutput[0][0]).get();
             imageArr.add(tmpImage);
         }
         System.out.println(imageArr.size());
-       // Plot plt = Plot.create();
+        // Plot plt = Plot.create();
         for (INDArray indArray : imageArr) {
+
+
+            //Create new file to write binary input data.
+            File file = new File("src/main/resources/data/test-input.zip");
+            System.out.println(file.getAbsolutePath());
+
+            BinarySerde.writeArrayToDisk(indArray, file);
+
             String result = Unirest.post("http://localhost:3000/raw/nd4j")
-                    .field("input_layer", indArray)
+                    .field("input_layer", file)
                     .asString().getBody();
             System.out.println("***********************");
             System.out.println(result);
@@ -71,6 +81,15 @@ public class InferenceModelStepMNISTTest {
 
 
 
+
+      /*  //Preparing input NDArray
+        INDArray arr = Nd4j.create(new float[]{1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f}, 1, 10);
+
+        //Create new file to write binary input data.
+        File file = new File("src/main/resources/data/test-input.zip");
+        System.out.println(file.getAbsolutePath());
+
+        BinarySerde.writeArrayToDisk(arr, file);*/
 //        //Writing response to output file
 //        File outputImagePath = new File("src/main/resources/data/test-image-output.zip");
 //        FileUtils.writeStringToFile(outputImagePath, result, Charset.defaultCharset());

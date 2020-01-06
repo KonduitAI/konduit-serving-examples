@@ -37,7 +37,7 @@ public class Util {
     }
 
     // Generate array with random ints between 0 to upper value
-    static INDArray randInt(int [] shape, int upper) {
+    static INDArray randInt(int[] shape, int upper) {
         return Transforms.floor(Nd4j.rand(shape).mul(upper)).divi(upper);
     }
 }
