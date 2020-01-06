@@ -23,11 +23,15 @@ import ai.konduit.serving.config.Output;
 import ai.konduit.serving.config.ParallelInferenceConfig;
 import ai.konduit.serving.config.ServingConfig;
 import ai.konduit.serving.configprovider.KonduitServingMain;
-import ai.konduit.serving.model.*;
+import ai.konduit.serving.model.ModelConfig;
+import ai.konduit.serving.model.ModelConfigType;
+import ai.konduit.serving.model.TensorDataTypesConfig;
+import ai.konduit.serving.model.TensorFlowConfig;
 import ai.konduit.serving.pipeline.step.ModelStep;
 import org.apache.commons.io.FileUtils;
 import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.tensorflow.conversion.TensorDataType;
+
 import javax.annotation.concurrent.NotThreadSafe;
 import java.io.File;
 import java.nio.charset.Charset;
@@ -46,10 +50,10 @@ public class InferenceModelStepMNIST {
         String tensorflow_version = "2.0.0";
 
         //File path for model
-        String mnistmodelfilePath = new ClassPathResource("data/mnist/mnist_"+tensorflow_version+".pb").getFile().getAbsolutePath();
+        String mnistmodelfilePath = new ClassPathResource("data/mnist/mnist_" + tensorflow_version + ".pb").getFile().getAbsolutePath();
 
-	    //Set the tensor input data types
-        HashMap<String, TensorDataType> input_data_types=new HashMap();
+        //Set the tensor input data types
+        HashMap<String, TensorDataType> input_data_types = new HashMap();
         input_data_types.put("input_layer", TensorDataType.FLOAT);
 
         //Model config and set model type as MNIST
@@ -62,9 +66,9 @@ public class InferenceModelStepMNIST {
                         modelType(ModelConfig.ModelType.TENSORFLOW).build())
                 .build();
 
-	    //Set the input and output names for model step
+        //Set the input and output names for model step
         List<String> input_names = new ArrayList<String>(input_data_types.keySet());
-        ArrayList<String> output_names=new ArrayList<>();
+        ArrayList<String> output_names = new ArrayList<>();
         output_names.add("output_layer/Softmax");
         int port = 3000;//Util.randInt(1000, 65535);
 
@@ -79,7 +83,8 @@ public class InferenceModelStepMNIST {
         //ServingConfig set httpport and Input Formats
         ServingConfig servingConfig = ServingConfig.builder().httpPort(port).
                 inputDataFormat(Input.DataFormat.NUMPY).
-                outputDataFormat(Output.DataFormat.NUMPY).
+              //  outputDataFormat(Output.DataFormat.NUMPY).
+                predictionType(Output.PredictionType.RAW).
                 build();
 
         //Inference Configuration
