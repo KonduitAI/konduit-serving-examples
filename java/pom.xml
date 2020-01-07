@@ -20,28 +20,71 @@
         </plugins>
     </build>
 
+    <repositories>
+        <repository>
+            <id>snapshots-repo</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>  <!-- Optional, update daily -->
+            </snapshots>
+        </repository>
+    </repositories>
     <name>konduit-serving-examples</name>
 
     <properties>
-        <konduit.serving.version>1.2.1</konduit.serving.version>
+        <konduit.serving.version>0.1.0-SNAPSHOT</konduit.serving.version>
+        <konduit.serving.spin>all</konduit.serving.spin>
+        <konduit.serving.platform>windows-x86_64</konduit.serving.platform>
+        <konduit.serving.backend>cpu</konduit.serving.backend>
+        <konduit.serving.classifier>${konduit.serving.spin}-${konduit.serving.platform}-${konduit.serving.backend}</konduit.serving.classifier>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>ai.konduit.serving</groupId>
-            <artifactId>konduit-serving-core</artifactId>
+            <artifactId>konduit-serving-uberjar</artifactId>
             <version>${konduit.serving.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ai.konduit.serving</groupId>
-            <artifactId>konduit-serving-native</artifactId>
-            <version>${konduit.serving.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ai.konduit.serving</groupId>
-            <artifactId>konduit-serving-python</artifactId>
-            <version>${konduit.serving.version}</version>
+            <classifier>${konduit.serving.classifier}</classifier>
         </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>windows</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <properties>
+                <konduit.serving.platform>windows-x86_64</konduit.serving.platform>
+            </properties>
+        </profile>
+        <profile>
+            <id>macos</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+            </activation>
+            <properties>
+                <konduit.serving.platform>macos-x86_64</konduit.serving.platform>
+            </properties>
+        </profile>
+        <profile>
+            <id>linux</id>
+            <activation>
+                <os>
+                    <family>linux</family>
+                </os>
+            </activation>
+            <properties>
+                <konduit.serving.platform>linux-x86_64</konduit.serving.platform>
+            </properties>
+        </profile>
+    </profiles>
 </project>

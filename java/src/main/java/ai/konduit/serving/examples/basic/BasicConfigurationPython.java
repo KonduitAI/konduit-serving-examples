@@ -2,9 +2,9 @@ package ai.konduit.serving.examples.basic;
 
 import ai.konduit.serving.model.PythonConfig;
 import ai.konduit.serving.pipeline.step.PythonStep;
-import ai.konduit.serving.util.python.PythonVariables;
 import org.datavec.api.writable.NDArrayWritable;
 import org.datavec.api.writable.Writable;
+import org.datavec.python.PythonVariables;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.io.ClassPathResource;
 
