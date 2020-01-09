@@ -19,6 +19,9 @@ package ai.konduit.serving.examples.inference;
 
 import com.mashape.unirest.http.Unirest;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.serde.binary.BinarySerde;
+
+import java.io.File;
 
 /**
  * Example for client test of Inference for DL4J ML model using Model step .
@@ -29,9 +32,12 @@ public class InferenceModelStepDL4JTest {
         //Create random array between 0-244
         INDArray rand_image = Util.randInt(new int[]{1, 3, 244, 244}, 255);
 
+        File file = new File("src/main/resources/data/test-dl4j.zip");
+        BinarySerde.writeArrayToDisk(rand_image, file);
+        System.out.println(rand_image);
+
         String response = Unirest.post("http://localhost:3000/raw/nd4j")
-                .field("image_array", rand_image)
-                .asString().getBody();
+                .field("image_array", file).asString().getBody();
 
         System.out.println(response);
 
