@@ -19,7 +19,6 @@ package ai.konduit.serving.examples.inference;
 
 import ai.konduit.serving.InferenceConfiguration;
 import ai.konduit.serving.config.Input;
-import ai.konduit.serving.config.Output;
 import ai.konduit.serving.config.ServingConfig;
 import ai.konduit.serving.configprovider.KonduitServingMain;
 import ai.konduit.serving.model.ModelConfig;
@@ -78,9 +77,9 @@ public class InferenceModelStepDL4J {
 
         //ServingConfig set httpport and Input Formats
         ServingConfig servingConfig = ServingConfig.builder().httpPort(3000).
-                inputDataFormat(Input.DataFormat.NUMPY).
-                outputDataFormat(Output.DataFormat.NUMPY).
-                build();
+                inputDataFormat(Input.DataFormat.ND4J).
+                // outputDataFormat(Output.DataFormat.ND4J).
+                        build();
 
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()

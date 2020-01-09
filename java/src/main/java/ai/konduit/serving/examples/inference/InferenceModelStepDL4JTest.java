@@ -27,7 +27,7 @@ public class InferenceModelStepDL4JTest {
     public static void main(String[] args) throws Exception {
 
         //Create random array between 0-244
-        INDArray rand_image = Util.randInt(new int[]{3, 244, 244}, 255);
+        INDArray rand_image = Util.randInt(new int[]{1, 3, 244, 244}, 255);
 
         String response = Unirest.post("http://localhost:3000/raw/nd4j")
                 .field("image_array", rand_image)
