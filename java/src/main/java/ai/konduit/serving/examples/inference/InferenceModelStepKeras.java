@@ -61,7 +61,6 @@ public class InferenceModelStepKeras {
         //ServingConfig set httpport and Input Formats
         ServingConfig servingConfig = ServingConfig.builder().httpPort(3000).
                 inputDataFormat(Input.DataFormat.ND4J).
-              //  outputDataFormat(Output.DataFormat.JSON).
                 predictionType(Output.PredictionType.RAW).
                 build();
 
@@ -73,7 +72,6 @@ public class InferenceModelStepKeras {
 
         //Print the configuration to make sure our settings correctly set.
         System.out.println(inferenceConfiguration.toJson());
-
 
         File configFile = new File("config.json");
         FileUtils.write(configFile, inferenceConfiguration.toJson(), Charset.defaultCharset());
