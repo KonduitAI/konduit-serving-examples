@@ -62,41 +62,23 @@ public class InferenceModelStepMNISTTest {
             imageArr.add(tmpImage);
         }
         System.out.println(imageArr.size());
+
+        //TODO: Need to do the batch input yet to implement.
         // Plot plt = Plot.create();
-        for (INDArray indArray : imageArr) {
-
-
-            //Create new file to write binary input data.
-            File file = new File("src/main/resources/data/test-input.zip");
-            System.out.println(file.getAbsolutePath());
-
-            BinarySerde.writeArrayToDisk(indArray, file);
-
-            String result = Unirest.post("http://localhost:3000/raw/nd4j")
-                    .field("input_layer", file)
-                    .asString().getBody();
-            System.out.println("***********************");
-            System.out.println(result);
-        }
-
-
-
-
-      /*  //Preparing input NDArray
-        INDArray arr = Nd4j.create(new float[]{1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f}, 1, 10);
+        //  for (INDArray indArray : imageArr) {
 
         //Create new file to write binary input data.
         File file = new File("src/main/resources/data/test-input.zip");
         System.out.println(file.getAbsolutePath());
 
-        BinarySerde.writeArrayToDisk(arr, file);*/
-//        //Writing response to output file
-//        File outputImagePath = new File("src/main/resources/data/test-image-output.zip");
-//        FileUtils.writeStringToFile(outputImagePath, result, Charset.defaultCharset());
-//
-//        System.out.println(BinarySerde.readFromDisk(outputImagePath));
+        BinarySerde.writeArrayToDisk(imageArr.get(0), file);
 
-
+        String result = Unirest.post("http://localhost:3000/raw/nd4j")
+                .field("input_layer", file)
+                .asString().getBody();
+        System.out.println("output: ");
+        System.out.println(result);
+        // }
     }
 
 

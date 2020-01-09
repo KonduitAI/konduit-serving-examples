@@ -53,7 +53,7 @@ public class InferenceModelStepMNIST {
         String mnistmodelfilePath = new ClassPathResource("data/mnist/mnist_" + tensorflow_version + ".pb").getFile().getAbsolutePath();
 
         //Set the tensor input data types
-        HashMap<String, TensorDataType> input_data_types = new HashMap();
+        HashMap<String, TensorDataType> input_data_types = new HashMap<String, TensorDataType>();
         input_data_types.put("input_layer", TensorDataType.FLOAT);
 
         //Model config and set model type as MNIST
@@ -62,12 +62,12 @@ public class InferenceModelStepMNIST {
                         inputDataTypes(input_data_types).build())
 
                 .modelConfigType(ModelConfigType.builder().
-                        modelLoadingPath(mnistmodelfilePath.toString()).
+                        modelLoadingPath(mnistmodelfilePath).
                         modelType(ModelConfig.ModelType.TENSORFLOW).build())
                 .build();
 
         //Set the input and output names for model step
-        List<String> input_names = new ArrayList<String>(input_data_types.keySet());
+        List<String> input_names = new ArrayList<>(input_data_types.keySet());
         ArrayList<String> output_names = new ArrayList<>();
         output_names.add("output_layer/Softmax");
         int port = 3000;//Util.randInt(1000, 65535);
@@ -82,10 +82,10 @@ public class InferenceModelStepMNIST {
 
         //ServingConfig set httpport and Input Formats
         ServingConfig servingConfig = ServingConfig.builder().httpPort(port).
-                inputDataFormat(Input.DataFormat.NUMPY).
-              //  outputDataFormat(Output.DataFormat.NUMPY).
-                predictionType(Output.PredictionType.RAW).
-                build();
+                inputDataFormat(Input.DataFormat.ND4J).
+                //  outputDataFormat(Output.DataFormat.NUMPY).
+                        predictionType(Output.PredictionType.RAW).
+                        build();
 
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
