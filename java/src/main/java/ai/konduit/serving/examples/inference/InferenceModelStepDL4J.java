@@ -19,6 +19,7 @@ package ai.konduit.serving.examples.inference;
 
 import ai.konduit.serving.InferenceConfiguration;
 import ai.konduit.serving.config.Input;
+import ai.konduit.serving.config.ParallelInferenceConfig;
 import ai.konduit.serving.config.ServingConfig;
 import ai.konduit.serving.configprovider.KonduitServingMain;
 import ai.konduit.serving.model.ModelConfig;
@@ -73,6 +74,7 @@ public class InferenceModelStepDL4J {
                 .modelConfig(dl4jModelConfig)
                 .inputNames(input_names)
                 .outputNames(output_names)
+                .parallelInferenceConfig(ParallelInferenceConfig.builder().workers(1).build())
                 .build();
 
         //ServingConfig set httpport and Input Formats
