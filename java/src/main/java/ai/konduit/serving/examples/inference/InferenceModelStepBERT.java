@@ -19,7 +19,6 @@ package ai.konduit.serving.examples.inference;
 
 import ai.konduit.serving.InferenceConfiguration;
 import ai.konduit.serving.config.Input;
-import ai.konduit.serving.config.Output;
 import ai.konduit.serving.config.ParallelInferenceConfig;
 import ai.konduit.serving.config.ServingConfig;
 import ai.konduit.serving.configprovider.KonduitServingMain;
@@ -37,6 +36,7 @@ import java.io.File;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 
@@ -51,11 +51,9 @@ public class InferenceModelStepBERT {
         //File path for model
         String bertmodelfilePath = new ClassPathResource("data/bert/bert_mrpc_frozen.pb").getFile().getAbsolutePath();
         System.out.println(bertmodelfilePath);
-        //    File bertmodelfilePath = new File("konduit-serving-examples/src/main/resources/data/bert/bert_mrpc_frozen.pb");
-        //  System.out.println(bertmodelfilePath);
 
         //Set the tensor input data types
-        HashMap<String, TensorDataType> input_data_types = new HashMap();
+        HashMap<String, TensorDataType> input_data_types = new LinkedHashMap<>();
         input_data_types.put("IteratorGetNext:0", TensorDataType.INT32);
         input_data_types.put("IteratorGetNext:1", TensorDataType.INT32);
         input_data_types.put("IteratorGetNext:4", TensorDataType.INT32);
@@ -83,12 +81,12 @@ public class InferenceModelStepBERT {
                 .build();
 
         //ServingConfig set httpport and Input Formats
-        //int port = Util.randInt(1000, 65535);
+       // int port = Util.randInt(1000, 65535);
         int port = 3000;
         ServingConfig servingConfig = ServingConfig.builder().httpPort(port).
-                inputDataFormat(Input.DataFormat.NUMPY).
-                outputDataFormat(Output.DataFormat.NUMPY).
-                build();
+                inputDataFormat(Input.DataFormat.ND4J).
+                //  outputDataFormat(Output.DataFormat.NUMPY).
+                        build();
 
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
