@@ -17,19 +17,18 @@
 package ai.konduit.serving.examples.inference;
 
 import ai.konduit.serving.InferenceConfiguration;
-import ai.konduit.serving.config.Input;
-import ai.konduit.serving.config.Output;
 import ai.konduit.serving.config.SchemaType;
 import ai.konduit.serving.config.ServingConfig;
 import ai.konduit.serving.configprovider.KonduitServingMain;
-import ai.konduit.serving.pipeline.PipelineStep;
 import ai.konduit.serving.pipeline.step.TransformProcessStep;
 import org.apache.commons.io.FileUtils;
 import org.datavec.api.transform.TransformProcess;
+import org.datavec.api.transform.schema.Schema;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -39,32 +38,39 @@ import java.util.HashMap;
 public class InferenceModelStepDataVec {
     public static void main(String[] args) throws Exception {
 
-        HashMap<String, TransformProcess> transformProcess = new HashMap<>();
-        transformProcess.put("first", TransformProcess.fromJson("two"));
+        // Define the input schema with string column
+        Schema inputSchema = new Schema.Builder()
+                .addColumnString("first")
+                .build();
+
+        //  Define a transform process that operates on the defined inputs.
+        TransformProcess transformProcess = new TransformProcess.Builder(inputSchema).
+                appendStringColumnTransform("first", "two").build();
 
         String column_names[] = new String[5];
         column_names[0] = "first";
 
         SchemaType types[] = new SchemaType[5];
         types[0] = SchemaType.String;
-        String schema = "None";
 
         int port = Util.randInt(1000, 65535);
 
-        //Set the configuration of pipeline to step
-        PipelineStep transform_step = TransformProcessStep.builder().transformProcesses(transformProcess).build()
-                .setInput(schema, column_names, types)
-                .setOutput(schema, column_names, types);
+        TransformProcessStep transformProcessStep = new TransformProcessStep()
+                .setInput(inputSchema.toString(), column_names, types)
+                .setOutput(inputSchema.toString(), column_names, types)
+                .transformProcess(transformProcess);
 
-        //ServingConfig set httpport and Input Formats
-        ServingConfig servingConfig = ServingConfig.builder().httpPort(port).
-                inputDataFormat(Input.DataFormat.JSON).
-                outputDataFormat(Output.DataFormat.JSON).
+        List tpStepList = new ArrayList();
+        tpStepList.add(transformProcessStep);
+
+        ServingConfig servingConfig = ServingConfig.builder().httpPort(3000).
+             //   inputDataFormat(Input.DataFormat.JSON).
+              //  outputDataFormat(Output.DataFormat.JSON).
                 build();
 
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
-                .step(transform_step).servingConfig(servingConfig).build();
+                .steps(tpStepList).servingConfig(servingConfig).build();
 
         //Print the configuration to make sure our settings correctly set.
         System.out.println(inferenceConfiguration.toJson());

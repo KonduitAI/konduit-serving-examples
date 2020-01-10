@@ -31,8 +31,8 @@ public class InferenceModelStepDataVecTest {
         HashMap<String, String> data_input = new HashMap<>();
         data_input.put("first", "value");
 
-        String response = Unirest.post("http://localhost:3000/raw/String")
-                .field("input", data_input)
+        String response = Unirest.post("http://localhost:3000/raw/json")
+                .field("first", "value")
                 .asString().getBody();
 
         System.out.print(response);
