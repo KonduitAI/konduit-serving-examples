@@ -47,11 +47,20 @@ import java.util.List;
 @NotThreadSafe
 public class InferenceModelStepBERT {
     public static void main(String[] args) throws Exception {
-
         //File path for model
-        String bertmodelfilePath = new ClassPathResource("data/bert/bert_mrpc_frozen.pb").getFile().getAbsolutePath();
+        String bertmodelfilePath = new ClassPathResource("data/bert").getFile().getAbsolutePath();
         System.out.println(bertmodelfilePath);
 
+        String bertFileName = "bert_mrpc_frozen.pb";
+        bertmodelfilePath = bertmodelfilePath + "/" +bertFileName;
+        File bertFile = new File(bertmodelfilePath);
+
+        //If bert_mrpc_frozen file not exist download as zip file and unzip to target folder.
+        //It will take time to download file depend on the internet speed.
+        if (!bertFile.exists()) {
+            File bertFileDir = Util.fileDownload("https://deeplearning4jblob.blob.core.windows.net/testresources/bert_mrpc_frozen_v1.zip");
+            Util.unzipFile(bertFileDir.toString(),bertFileName);
+        }
         //Set the tensor input data types
         HashMap<String, TensorDataType> input_data_types = new LinkedHashMap<>();
         input_data_types.put("IteratorGetNext:0", TensorDataType.INT32);
@@ -81,7 +90,7 @@ public class InferenceModelStepBERT {
                 .build();
 
         //ServingConfig set httpport and Input Formats
-       // int port = Util.randInt(1000, 65535);
+        // int port = Util.randInt(1000, 65535);
         int port = 3000;
         ServingConfig servingConfig = ServingConfig.builder().httpPort(port).
                 inputDataFormat(Input.DataFormat.ND4J).
