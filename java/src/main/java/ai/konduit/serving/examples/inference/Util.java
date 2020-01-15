@@ -18,6 +18,7 @@
 
 package ai.konduit.serving.examples.inference;
 
+import org.apache.commons.io.FileUtils;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.ops.transforms.Transforms;
@@ -98,9 +99,23 @@ public class Util {
                     fos.close();
                 }
             }
+            deleteTempDirectory(new File(zipFileDir));
         } catch (IOException e) {
             System.out.println("error during unzipping file :"+ e);
         }
         return bertFileDir;
+    }
+
+    private static void deleteTempDirectory(File tempDir) throws IOException {
+        //get parent folder of model.jar
+        File file = new File(tempDir.getParent());
+        //Delete files recursively
+        try{
+            FileUtils.deleteDirectory(file);
+            System.out.println("directory deleted");
+        } catch (IOException e){
+            System.out.println("error during deleting directory :"+ e);
+        }
+
     }
 }

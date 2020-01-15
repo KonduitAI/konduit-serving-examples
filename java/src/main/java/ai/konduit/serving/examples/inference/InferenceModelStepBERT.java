@@ -22,11 +22,15 @@ import ai.konduit.serving.config.Input;
 import ai.konduit.serving.config.ParallelInferenceConfig;
 import ai.konduit.serving.config.ServingConfig;
 import ai.konduit.serving.configprovider.KonduitServingMain;
+import ai.konduit.serving.configprovider.KonduitServingMainArgs;
 import ai.konduit.serving.model.ModelConfig;
 import ai.konduit.serving.model.ModelConfigType;
 import ai.konduit.serving.model.TensorDataTypesConfig;
 import ai.konduit.serving.model.TensorFlowConfig;
 import ai.konduit.serving.pipeline.step.ModelStep;
+import ai.konduit.serving.verticles.inference.InferenceVerticle;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import org.apache.commons.io.FileUtils;
 import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.tensorflow.conversion.TensorDataType;
@@ -34,10 +38,10 @@ import org.nd4j.tensorflow.conversion.TensorDataType;
 import javax.annotation.concurrent.NotThreadSafe;
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static org.bytedeco.numpy.presets.numpy.cachePackages;
 
 
 /**
@@ -47,6 +51,7 @@ import java.util.List;
 @NotThreadSafe
 public class InferenceModelStepBERT {
     public static void main(String[] args) throws Exception {
+
         //File path for model
         String bertmodelfilePath = new ClassPathResource("data/bert").getFile().getAbsolutePath();
         System.out.println(bertmodelfilePath);
@@ -90,12 +95,11 @@ public class InferenceModelStepBERT {
                 .build();
 
         //ServingConfig set httpport and Input Formats
-        // int port = Util.randInt(1000, 65535);
-        int port = 3000;
+        int port = Util.randInt(1000, 65535);
         ServingConfig servingConfig = ServingConfig.builder().httpPort(port).
-                inputDataFormat(Input.DataFormat.ND4J).
-                //  outputDataFormat(Output.DataFormat.NUMPY).
-                        build();
+                inputDataFormat(Input.DataFormat.NUMPY).
+                //outputDataFormat(Output.DataFormat.NUMPY).
+                build();
 
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
@@ -110,9 +114,42 @@ public class InferenceModelStepBERT {
         FileUtils.write(configFile, inferenceConfiguration.toJson(), Charset.defaultCharset());
 
         //Start inference server as per the above configurations
-        KonduitServingMain.main("--configPath", configFile.getAbsolutePath());
+        //KonduitServingMain.main("--configPath", configFile.getAbsolutePath());
+        KonduitServingMainArgs args1 = KonduitServingMainArgs.builder()
+                .configStoreType("file").ha(false)
+                .multiThreaded(false).configPort(port)
+                .verticleClassName(InferenceVerticle.class.getName())
+                .configPath(configFile.getAbsolutePath())
+                .build();
 
-        //Set sleep to wait till server started before getting any request from clients.
-        Thread.sleep(3600000);
+        //Preparing input NDArray
+        String pythonPath = Arrays.stream(cachePackages())
+                .filter(Objects::nonNull)
+                .map(File::getAbsolutePath)
+                .collect(Collectors.joining(File.pathSeparator));
+
+        String pythonCodePath = new ClassPathResource("scripts/loadnumpy.py").getFile().getAbsolutePath();
+        File input0 = new ClassPathResource("data/bert/input-0.npy").getFile();
+        File input1 = new ClassPathResource("data/bert/input-1.npy").getFile();
+        File input4 = new ClassPathResource("data/bert/input-4.npy").getFile();
+
+        KonduitServingMain.builder()
+                .onSuccess(()->{
+                    try {
+                        //Create new file to write binary input data.
+                        //client config.
+                        String response = Unirest.post("http://localhost:"+port+"/raw/numpy")
+                                .field("IteratorGetNext:0", input0)
+                                .field("IteratorGetNext:1", input1)
+                                .field("IteratorGetNext:4", input4)
+                                .asString().getBody();
+                        System.out.print(response);
+                    } catch (UnirestException e) {
+                        e.printStackTrace();
+                    }
+                })
+                .build()
+                .runMain(args1.toArgs());
+
     }
 }

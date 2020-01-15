@@ -19,15 +19,20 @@ package ai.konduit.serving.examples.inference;
 
 import ai.konduit.serving.InferenceConfiguration;
 import ai.konduit.serving.config.Input;
-import ai.konduit.serving.config.ParallelInferenceConfig;
 import ai.konduit.serving.config.ServingConfig;
 import ai.konduit.serving.configprovider.KonduitServingMain;
+import ai.konduit.serving.configprovider.KonduitServingMainArgs;
 import ai.konduit.serving.model.ModelConfig;
 import ai.konduit.serving.model.ModelConfigType;
 import ai.konduit.serving.model.TensorDataTypesConfig;
 import ai.konduit.serving.pipeline.step.ModelStep;
+import ai.konduit.serving.verticles.inference.InferenceVerticle;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import org.apache.commons.io.FileUtils;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.io.ClassPathResource;
+import org.nd4j.serde.binary.BinarySerde;
 import org.nd4j.tensorflow.conversion.TensorDataType;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -74,14 +79,13 @@ public class InferenceModelStepDL4J {
                 .modelConfig(dl4jModelConfig)
                 .inputNames(input_names)
                 .outputNames(output_names)
-                .parallelInferenceConfig(ParallelInferenceConfig.builder().workers(1).build())
                 .build();
 
         //ServingConfig set httpport and Input Formats
-        ServingConfig servingConfig = ServingConfig.builder().httpPort(3000).
+        ServingConfig servingConfig = ServingConfig.builder().httpPort(port).
                 inputDataFormat(Input.DataFormat.ND4J).
-                // outputDataFormat(Output.DataFormat.ND4J).
-                        build();
+               // outputDataFormat(Output.DataFormat.ND4J).
+                build();
 
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
@@ -97,10 +101,31 @@ public class InferenceModelStepDL4J {
         FileUtils.write(configFile, inferenceConfiguration.toJson(), Charset.defaultCharset());
 
         //Start inference server as per the above configurations
-        KonduitServingMain.main("--configPath", configFile.getAbsolutePath());
+        KonduitServingMainArgs args1 = KonduitServingMainArgs.builder()
+                .configStoreType("file").ha(false)
+                .multiThreaded(false).configPort(port)
+                .verticleClassName(InferenceVerticle.class.getName())
+                .configPath(configFile.getAbsolutePath())
+                .build();
 
-        //Set sleep to wait till server started before getting any request from clients.
-        Thread.sleep(3600000);
+        INDArray rand_image = Util.randInt(new int[]{1, 3, 244, 244}, 255);
+
+        File file = new File("src/main/resources/data/test-dl4j.zip");
+        BinarySerde.writeArrayToDisk(rand_image, file);
+        System.out.println(rand_image);
+
+        KonduitServingMain.builder()
+                .onSuccess(()->{
+                    try {
+                        String response = Unirest.post("http://localhost:"+port+"/raw/nd4j")
+                                .field("image_array", file).asString().getBody();
+                        System.out.print(response);
+                    } catch (UnirestException e) {
+                        e.printStackTrace();
+                    }
+                })
+                .build()
+                .runMain(args1.toArgs());
 
     }
 }
