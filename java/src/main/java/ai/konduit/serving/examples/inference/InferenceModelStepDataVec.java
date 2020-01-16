@@ -42,35 +42,49 @@ public class InferenceModelStepDataVec {
         Schema inputSchema = new Schema.Builder()
                 .addColumnString("first")
                 .build();
+        // Define the input schema with string column
+        Schema outputSchema = new Schema.Builder()
+                .addColumnString("first")
+                .build();
 
         //  Define a transform process that operates on the defined inputs.
         TransformProcess transformProcess = new TransformProcess.Builder(inputSchema).
                 appendStringColumnTransform("first", "two").build();
 
-        String column_names[] = new String[5];
+        transformProcess.toJson();
+
+        String column_names[] = new String[1];
         column_names[0] = "first";
 
-        SchemaType types[] = new SchemaType[5];
+        SchemaType types[] = new SchemaType[1];
         types[0] = SchemaType.String;
 
         int port = Util.randInt(1000, 65535);
 
+
+        /*
+         * Now we'll create the pipeline step for the transform process
+         */
+        // TransformProcessStep transformProcessStep = new TransformProcessStep()
+        //      .step("transform", transformProcess, outputSchema);
+
+
         TransformProcessStep transformProcessStep = new TransformProcessStep()
                 .setInput(inputSchema.toString(), column_names, types)
-                .setOutput(inputSchema.toString(), column_names, types)
+                .setOutput(outputSchema.toString(), column_names, types)
                 .transformProcess(transformProcess);
 
         List tpStepList = new ArrayList();
         tpStepList.add(transformProcessStep);
 
         ServingConfig servingConfig = ServingConfig.builder().httpPort(3000).
-             //   inputDataFormat(Input.DataFormat.JSON).
-              //  outputDataFormat(Output.DataFormat.JSON).
-                build();
+                //  inputDataFormat(Input.DataFormat.JSON).
+                // outputDataFormat(Output.DataFormat.JSON).
+                        build();
 
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
-                .steps(tpStepList).servingConfig(servingConfig).build();
+                .step(transformProcessStep).servingConfig(servingConfig).build();
 
         //Print the configuration to make sure our settings correctly set.
         System.out.println(inferenceConfiguration.toJson());

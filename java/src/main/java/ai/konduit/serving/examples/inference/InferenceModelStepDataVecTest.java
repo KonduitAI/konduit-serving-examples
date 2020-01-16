@@ -18,7 +18,10 @@
 package ai.konduit.serving.examples.inference;
 
 
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
+import io.vertx.core.json.JsonObject;
 
 import java.util.HashMap;
 
@@ -31,9 +34,20 @@ public class InferenceModelStepDataVecTest {
         HashMap<String, String> data_input = new HashMap<>();
         data_input.put("first", "value");
 
-        String response = Unirest.post("http://localhost:3000/raw/json")
-                .field("first", "value")
-                .asString().getBody();
+
+        // Create new JSON Object
+        JsonObject person = new JsonObject();
+        person.put("first", "last check");
+        // person.addProperty("lastName", "Kargopolov");
+
+        String jsonArrayString = "[\"value\"]";
+        //  String jsonString = "{"first\":\"value\"}";
+
+        HttpResponse<JsonNode> response = Unirest.post("http://localhost:3000/raw/json")
+                .header("Content-Type", "application/json")
+                .body("{\"first\" :\"value\"}").asJson();
+        //  .field("input",person).asJson();
+        //.asString().getBody();
 
         System.out.print(response);
     }
