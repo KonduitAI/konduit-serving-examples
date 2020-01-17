@@ -20,6 +20,7 @@ package ai.konduit.serving.examples.inference;
 import ai.konduit.serving.InferenceConfiguration;
 import ai.konduit.serving.config.Input;
 import ai.konduit.serving.config.Output;
+import ai.konduit.serving.config.ParallelInferenceConfig;
 import ai.konduit.serving.config.ServingConfig;
 import ai.konduit.serving.configprovider.KonduitServingMain;
 import ai.konduit.serving.configprovider.KonduitServingMainArgs;
@@ -65,6 +66,7 @@ public class InferenceModelStepKeras {
                 .modelConfig(kerasModelConfig)
                 .inputName("input")
                 .outputName("lstm_1")
+                .parallelInferenceConfig(ParallelInferenceConfig.builder().workers(1).build())
                 .build();
 
         int port = Util.randInt(1000, 65535);
