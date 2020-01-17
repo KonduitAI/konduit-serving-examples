@@ -1,0 +1,16 @@
+serving:
+  http_port: 1337
+  input_data_format: NUMPY
+  output_data_format: NUMPY
+steps:
+  keras_step:
+    type: KERAS
+    model_loading_path: ../data/keras/mnist_keras.h5
+    input_names:
+    - input_layer
+    output_names:
+    - output_layer/Identity
+    parallel_inference_config: 
+      workers: 1
+client:
+    port: 1337
