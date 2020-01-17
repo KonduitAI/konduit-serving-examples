@@ -81,7 +81,7 @@ public class InferenceModelStepMNIST {
         List<String> input_names = new ArrayList<String>(input_data_types.keySet());
         ArrayList<String> output_names = new ArrayList<>();
         output_names.add("output_layer/Softmax");
-        int port =Util.randInt(1000, 65535);
+        int port = Util.randInt(1000, 65535);
 
         //Set the configuration of model to step
         ModelStep bertModelStep = ModelStep.builder()
@@ -95,8 +95,8 @@ public class InferenceModelStepMNIST {
         ServingConfig servingConfig = ServingConfig.builder().httpPort(port).
                 inputDataFormat(Input.DataFormat.NUMPY).
                 //  outputDataFormat(Output.DataFormat.NUMPY).
-                predictionType(Output.PredictionType.RAW).
-                build();
+                        predictionType(Output.PredictionType.RAW).
+                        build();
 
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
@@ -110,9 +110,6 @@ public class InferenceModelStepMNIST {
         File configFile = new File("config.json");
         FileUtils.write(configFile, inferenceConfiguration.toJson(), Charset.defaultCharset());
 
-
-        //Start inference server as per the above configurations
-        //KonduitServingMain.main("--configPath", configFile.getAbsolutePath());
 
         //Start inference server as per the above configurations
         KonduitServingMainArgs args1 = KonduitServingMainArgs.builder()
@@ -137,8 +134,6 @@ public class InferenceModelStepMNIST {
 
         ArrayList<INDArray> imageArr = new ArrayList<>();
         ArrayList<String> inputString = new ArrayList<>();
-        inputString.add("data/facedetector/1.jpg");
-        inputString.add("images/two.png");
         inputString.add("images/one.png");
 
         for (String imagePathStr : inputString) {
@@ -151,14 +146,14 @@ public class InferenceModelStepMNIST {
         System.out.println(imageArr.size());
 
         KonduitServingMain.builder()
-                .onSuccess(()->{
+                .onSuccess(() -> {
                     try {
                         for (INDArray indArray : imageArr) {
                             //Create new file to write binary input data.
                             File file = new File("src/main/resources/data/test-input.zip");
                             BinarySerde.writeArrayToDisk(indArray, file);
 
-                            String result = Unirest.post("http://localhost:"+port+"/raw/nd4j")
+                            String result = Unirest.post("http://localhost:" + port + "/raw/nd4j")
                                     .field("input_layer", file)
                                     .asString().getBody();
                             System.out.println(result);

@@ -47,7 +47,7 @@ public class InferenceModelStepONNXTest {
                 .imageTransformProcess("default", imageTransformProcess)
                 .build();
         //Preparing input images.
-        File imagePath = new File("konduit-serving-examples/src/main/resources/data/facedetector/1.jpg");
+        File imagePath = new File("src/main/resources/data/facedetector/1.jpg");
 
         Writable[][] output = imageLoadingStep.createRunner().transform(imagePath.toString());
 
@@ -56,7 +56,7 @@ public class InferenceModelStepONNXTest {
         System.out.println(rand_image);
 
         String response = Unirest.post("http://localhost:3000/raw/nd4j")
-                .field("input", rand_image)
+                .field("image", rand_image)
                 .asString().getBody();
 
         System.out.println(response);

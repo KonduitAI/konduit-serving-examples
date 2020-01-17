@@ -17,19 +17,22 @@
 package ai.konduit.serving.examples.inference;
 
 import ai.konduit.serving.InferenceConfiguration;
-import ai.konduit.serving.config.Input;
-import ai.konduit.serving.config.Output;
 import ai.konduit.serving.config.ServingConfig;
 import ai.konduit.serving.configprovider.KonduitServingMain;
 import ai.konduit.serving.model.PythonConfig;
 import ai.konduit.serving.pipeline.step.PythonStep;
 import org.apache.commons.io.FileUtils;
+import org.datavec.python.PythonVariables;
 import org.nd4j.linalg.io.ClassPathResource;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import static org.bytedeco.numpy.presets.numpy.cachePackages;
 
 @NotThreadSafe
 
@@ -41,36 +44,34 @@ import java.util.HashMap;
 class InferenceModelStepONNX {
     public static void main(String[] args) throws Exception {
         //File path for model
-        String working_dir = new ClassPathResource(".").getFile().getAbsolutePath();
-        String python_code = "";
+        String pythonCodePath = new ClassPathResource("scripts/onnxFacedetect.py").getFile().getAbsolutePath();
 
-        //Set the python inputs and outputs
-        HashMap<String, String> python_inputs = new HashMap<>();
-        HashMap<String, String> python_outputs = new HashMap<>();
-        python_inputs.put("image", "NDARRAY");
-        python_outputs.put("boxes", "NDARRAY");
+        String pythonPath = Arrays.stream(cachePackages())
+                .filter(Objects::nonNull)
+                .map(File::getAbsolutePath)
+                .collect(Collectors.joining(File.pathSeparator));
 
         //python configuration for input and output.
         PythonConfig python_config = PythonConfig.builder()
-                .pythonCode(python_code)
-                .pythonInputs(python_inputs)
-                .pythonOutputs(python_outputs)
-                .pythonPath(working_dir)
+                .pythonCode(pythonCodePath)
+                .pythonInput("image", PythonVariables.Type.NDARRAY.name())
+                .pythonOutput("boxes", PythonVariables.Type.NDARRAY.name())
+                .pythonPath(pythonPath)
                 .build();
 
         String input_name = "input1";
+
         //Set the configuration of python to step
-        PythonStep onnx_step = PythonStep.builder()
-                .inputName(input_name)
-                .pythonConfig("python_config", python_config).build();
+        PythonStep onnx_step = new PythonStep().step(python_config);
 
         //ServingConfig set httpport and Input Formats
-        int port = Util.randInt(1000, 65535);
-        ServingConfig servingConfig = ServingConfig.builder().httpPort(3000).
-                inputDataFormat(Input.DataFormat.NUMPY).
+        //int port = Util.randInt(1000, 65535);
+        int port = 3000;
+        ServingConfig servingConfig = ServingConfig.builder().httpPort(port).
+                //      inputDataFormat(Input.DataFormat.ND4J).
                 //  outputDataFormat(Output.DataFormat.NUMPY).
-                        predictionType(Output.PredictionType.RAW).
-                build();
+                //          predictionType(Output.PredictionType.RAW).
+                        build();
 
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
