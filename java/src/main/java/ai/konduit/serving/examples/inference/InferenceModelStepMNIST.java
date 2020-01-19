@@ -93,9 +93,7 @@ public class InferenceModelStepMNIST {
 
         //ServingConfig set httpport and Input Formats
         ServingConfig servingConfig = ServingConfig.builder().httpPort(port).
-                inputDataFormat(Input.DataFormat.NUMPY).
                 //  outputDataFormat(Output.DataFormat.NUMPY).
-                predictionType(Output.PredictionType.RAW).
                 build();
 
         //Inference Configuration

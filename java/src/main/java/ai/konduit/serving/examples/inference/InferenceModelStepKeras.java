@@ -71,8 +71,6 @@ public class InferenceModelStepKeras {
 
         //ServingConfig set httpport and Input Formats
         ServingConfig servingConfig = ServingConfig.builder().httpPort(port).
-                inputDataFormat(Input.DataFormat.ND4J).
-                predictionType(Output.PredictionType.RAW).
                 build();
 
         //Inference Configuration

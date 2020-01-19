@@ -67,9 +67,7 @@ class InferenceModelStepONNX {
         //ServingConfig set httpport and Input Formats
         int port = Util.randInt(1000, 65535);
         ServingConfig servingConfig = ServingConfig.builder().httpPort(3000).
-                inputDataFormat(Input.DataFormat.NUMPY).
                 //  outputDataFormat(Output.DataFormat.NUMPY).
-                        predictionType(Output.PredictionType.RAW).
                 build();
 
         //Inference Configuration

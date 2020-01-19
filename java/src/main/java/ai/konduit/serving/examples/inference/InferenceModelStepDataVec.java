@@ -21,6 +21,10 @@ import ai.konduit.serving.config.SchemaType;
 import ai.konduit.serving.config.ServingConfig;
 import ai.konduit.serving.configprovider.KonduitServingMain;
 import ai.konduit.serving.pipeline.step.TransformProcessStep;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import org.apache.commons.io.FileUtils;
 import org.datavec.api.transform.TransformProcess;
 import org.datavec.api.transform.schema.Schema;
@@ -51,36 +55,16 @@ public class InferenceModelStepDataVec {
         TransformProcess transformProcess = new TransformProcess.Builder(inputSchema).
                 appendStringColumnTransform("first", "two").build();
 
-        transformProcess.toJson();
-
-        String column_names[] = new String[1];
-        column_names[0] = "first";
-
-        SchemaType types[] = new SchemaType[1];
-        types[0] = SchemaType.String;
-
         int port = Util.randInt(1000, 65535);
-
 
         /*
          * Now we'll create the pipeline step for the transform process
          */
-        // TransformProcessStep transformProcessStep = new TransformProcessStep()
-        //      .step("transform", transformProcess, outputSchema);
+        TransformProcessStep transformProcessStep = new TransformProcessStep(transformProcess, outputSchema);
 
-
-        TransformProcessStep transformProcessStep = new TransformProcessStep()
-                .setInput(inputSchema.toString(), column_names, types)
-                .setOutput(outputSchema.toString(), column_names, types)
-                .transformProcess(transformProcess);
-
-        List tpStepList = new ArrayList();
-        tpStepList.add(transformProcessStep);
-
-        ServingConfig servingConfig = ServingConfig.builder().httpPort(3000).
-                //  inputDataFormat(Input.DataFormat.JSON).
-                // outputDataFormat(Output.DataFormat.JSON).
-                        build();
+        ServingConfig servingConfig = ServingConfig.builder()
+                .httpPort(port)
+                .build();
 
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
@@ -93,10 +77,26 @@ public class InferenceModelStepDataVec {
         FileUtils.write(configFile, inferenceConfiguration.toJson(), Charset.defaultCharset());
 
         //Start inference server as per the above configurations
-        KonduitServingMain.main("--configPath", configFile.getAbsolutePath());
+        KonduitServingMain.builder()
+                .onSuccess(() -> {
+                    try {
+                        HttpResponse<JsonNode> response = Unirest.post(String.format("http://localhost:%s/raw/json", port))
+                                .header("Content-Type", "application/json")
+                                .body("{\"first\" :\"value\"}").asJson();
 
-        //Set sleep to wait till server started before getting any request from clients.
+                        System.out.println(response.getBody().toString());
+
+                        System.exit(0);
+                    } catch (UnirestException e) {
+                        e.printStackTrace();
+
+                        System.exit(0);
+                    }
+                })
+                .build()
+                .runMain("--configPath", configFile.getAbsolutePath());
+
+        // Waiting till the server starts and gets a response for the sent request.
         Thread.sleep(3600000);
-
     }
 }

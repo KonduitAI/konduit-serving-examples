@@ -83,7 +83,6 @@ public class InferenceModelStepDL4J {
 
         //ServingConfig set httpport and Input Formats
         ServingConfig servingConfig = ServingConfig.builder().httpPort(port).
-                inputDataFormat(Input.DataFormat.ND4J).
                // outputDataFormat(Output.DataFormat.ND4J).
                 build();
 

@@ -49,9 +49,7 @@ public class InferenceModelStepImage {
 
         //ServingConfig set httpport and Input Formats
         ServingConfig servingConfig = ServingConfig.builder().httpPort(3000).
-                inputDataFormat(Input.DataFormat.IMAGE).
                 outputDataFormat(Output.DataFormat.ND4J).
-                predictionType(Output.PredictionType.RAW).
                 build();
 
         //Inference Configuration

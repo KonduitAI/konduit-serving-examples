@@ -65,14 +65,14 @@
             </properties>
         </profile>
         <profile>
-            <id>macos</id>
+            <id>macosx</id>
             <activation>
                 <os>
                     <family>mac</family>
                 </os>
             </activation>
             <properties>
-                <konduit.serving.platform>macos-x86_64</konduit.serving.platform>
+                <konduit.serving.platform>macosx-x86_64</konduit.serving.platform>
             </properties>
         </profile>
         <profile>

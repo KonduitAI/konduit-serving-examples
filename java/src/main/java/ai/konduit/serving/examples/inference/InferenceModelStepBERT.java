@@ -82,7 +82,7 @@ public class InferenceModelStepBERT {
                 .build();
 
         //Set the input and output names for model step
-        List<String> input_names = new ArrayList<String>(input_data_types.keySet());
+        List<String> input_names = new ArrayList<>(input_data_types.keySet());
         ArrayList<String> output_names = new ArrayList<>();
         output_names.add("loss/Softmax");
 
@@ -97,7 +97,6 @@ public class InferenceModelStepBERT {
         //ServingConfig set httpport and Input Formats
         int port = Util.randInt(1000, 65535);
         ServingConfig servingConfig = ServingConfig.builder().httpPort(port).
-                inputDataFormat(Input.DataFormat.NUMPY).
                 //outputDataFormat(Output.DataFormat.NUMPY).
                 build();
 
