@@ -37,7 +37,7 @@
 
     <properties>
         <konduit.serving.version>0.1.0-SNAPSHOT</konduit.serving.version>
-        <konduit.serving.spin>custom</konduit.serving.spin>
+        <konduit.serving.spin>all</konduit.serving.spin>
         <konduit.serving.platform>windows-x86_64</konduit.serving.platform>
         <konduit.serving.backend>cpu</konduit.serving.backend>
         <konduit.serving.classifier>${konduit.serving.spin}-${konduit.serving.platform}-${konduit.serving.backend}</konduit.serving.classifier>

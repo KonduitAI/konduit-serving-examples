@@ -39,7 +39,9 @@ Detailed installation steps are available [here](https://serving.oss.konduit.ai/
 4. Serving a DataVec TransformProcess: [04_datavec-etl.ipynb](notebooks/04_datavec-etl.ipynb)
 5. Serving an ONNX model file with ONNX Runtime (PyTorch, CNTK, MXNet)
    - PyTorch: [05_onnx_pytorch.ipynb](notebooks/05_onnx_pytorch.ipynb)
-6. Serving a Keras model: [06_keras.ipynb](notebooks/06_keras.ipynb)
+6. Serving a Keras model: 
+   - LSTM: [06_keras.ipynb](notebooks/06_keras.ipynb)
+   - MNIST with TensorFlow 2.0: [07_tensorflow-keras_basic-mnist.ipynb](notebooks/07_tensorflow-keras_basic-mnist.ipynb)
 7. Model monitoring
     1. Quickstart: [monitoring/quickstart](monitoring/quickstart)
 
