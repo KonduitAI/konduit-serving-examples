@@ -18,7 +18,6 @@
 package ai.konduit.serving.examples.inference;
 
 import ai.konduit.serving.InferenceConfiguration;
-import ai.konduit.serving.config.Input;
 import ai.konduit.serving.config.ParallelInferenceConfig;
 import ai.konduit.serving.config.ServingConfig;
 import ai.konduit.serving.configprovider.KonduitServingMain;
@@ -57,14 +56,14 @@ public class InferenceModelStepBERT {
         System.out.println(bertmodelfilePath);
 
         String bertFileName = "bert_mrpc_frozen.pb";
-        bertmodelfilePath = bertmodelfilePath + "/" +bertFileName;
+        bertmodelfilePath = bertmodelfilePath + "/" + bertFileName;
         File bertFile = new File(bertmodelfilePath);
 
         //If bert_mrpc_frozen file not exist download as zip file and unzip to target folder.
         //It will take time to download file depend on the internet speed.
         if (!bertFile.exists()) {
             File bertFileDir = Util.fileDownload("https://deeplearning4jblob.blob.core.windows.net/testresources/bert_mrpc_frozen_v1.zip");
-            Util.unzipFile(bertFileDir.toString(),bertFileName);
+            Util.unzipFile(bertFileDir.toString(), bertFileName);
         }
         //Set the tensor input data types
         HashMap<String, TensorDataType> input_data_types = new LinkedHashMap<>();
@@ -96,9 +95,9 @@ public class InferenceModelStepBERT {
 
         //ServingConfig set httpport and Input Formats
         int port = Util.randInt(1000, 65535);
-        ServingConfig servingConfig = ServingConfig.builder().httpPort(port).
-                //outputDataFormat(Output.DataFormat.NUMPY).
-                build();
+        ServingConfig servingConfig = ServingConfig.builder()
+                .httpPort(port)
+                .build();
 
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
@@ -113,7 +112,6 @@ public class InferenceModelStepBERT {
         FileUtils.write(configFile, inferenceConfiguration.toJson(), Charset.defaultCharset());
 
         //Start inference server as per the above configurations
-        //KonduitServingMain.main("--configPath", configFile.getAbsolutePath());
         KonduitServingMainArgs args1 = KonduitServingMainArgs.builder()
                 .configStoreType("file").ha(false)
                 .multiThreaded(false).configPort(port)
@@ -133,11 +131,11 @@ public class InferenceModelStepBERT {
         File input4 = new ClassPathResource("data/bert/input-4.npy").getFile();
 
         KonduitServingMain.builder()
-                .onSuccess(()->{
+                .onSuccess(() -> {
                     try {
                         //Create new file to write binary input data.
                         //client config.
-                        String response = Unirest.post("http://localhost:"+port+"/raw/numpy")
+                        String response = Unirest.post(String.format("http://localhost:%s/raw/numpy", port))
                                 .field("IteratorGetNext:0", input0)
                                 .field("IteratorGetNext:1", input1)
                                 .field("IteratorGetNext:4", input4)

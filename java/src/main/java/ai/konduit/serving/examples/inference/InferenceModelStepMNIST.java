@@ -18,8 +18,6 @@
 package ai.konduit.serving.examples.inference;
 
 import ai.konduit.serving.InferenceConfiguration;
-import ai.konduit.serving.config.Input;
-import ai.konduit.serving.config.Output;
 import ai.konduit.serving.config.ParallelInferenceConfig;
 import ai.konduit.serving.config.ServingConfig;
 import ai.konduit.serving.configprovider.KonduitServingMain;
@@ -81,7 +79,7 @@ public class InferenceModelStepMNIST {
         List<String> input_names = new ArrayList<String>(input_data_types.keySet());
         ArrayList<String> output_names = new ArrayList<>();
         output_names.add("output_layer/Softmax");
-        int port =Util.randInt(1000, 65535);
+        int port = Util.randInt(1000, 65535);
 
         //Set the configuration of model to step
         ModelStep bertModelStep = ModelStep.builder()
@@ -92,9 +90,9 @@ public class InferenceModelStepMNIST {
                 .build();
 
         //ServingConfig set httpport and Input Formats
-        ServingConfig servingConfig = ServingConfig.builder().httpPort(port).
-                //  outputDataFormat(Output.DataFormat.NUMPY).
-                build();
+        ServingConfig servingConfig = ServingConfig.builder()
+                .httpPort(port)
+                .build();
 
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
@@ -108,11 +106,7 @@ public class InferenceModelStepMNIST {
         File configFile = new File("config.json");
         FileUtils.write(configFile, inferenceConfiguration.toJson(), Charset.defaultCharset());
 
-
-        //Start inference server as per the above configurations
-        //KonduitServingMain.main("--configPath", configFile.getAbsolutePath());
-
-        //Start inference server as per the above configurations
+        //Set and Start inference server as per the above configurations
         KonduitServingMainArgs args1 = KonduitServingMainArgs.builder()
                 .configStoreType("file").ha(false)
                 .multiThreaded(false).configPort(port)
@@ -136,9 +130,8 @@ public class InferenceModelStepMNIST {
         ArrayList<INDArray> imageArr = new ArrayList<>();
         ArrayList<String> inputString = new ArrayList<>();
         inputString.add("data/facedetector/1.jpg");
-        inputString.add("images/two.png");
-        inputString.add("images/one.png");
 
+        //Currently one one image tested.
         for (String imagePathStr : inputString) {
             String tmpInput = new ClassPathResource(imagePathStr).getFile().getAbsolutePath();
             Writable[][] tmpOutput = imageLoadingStep.createRunner().transform(tmpInput);
@@ -146,19 +139,19 @@ public class InferenceModelStepMNIST {
             imageArr.add(tmpImage);
         }
 
-        System.out.println(imageArr.size());
-
         KonduitServingMain.builder()
-                .onSuccess(()->{
+                .onSuccess(() -> {
                     try {
                         for (INDArray indArray : imageArr) {
+
                             //Create new file to write binary input data.
                             File file = new File("src/main/resources/data/test-input.zip");
                             BinarySerde.writeArrayToDisk(indArray, file);
 
-                            String result = Unirest.post("http://localhost:"+port+"/raw/nd4j")
+                            String result = Unirest.post(String.format("http://localhost:%s/raw/nd4j", port))
                                     .field("input_layer", file)
                                     .asString().getBody();
+
                             System.out.println(result);
                         }
                     } catch (UnirestException e) {
@@ -169,7 +162,5 @@ public class InferenceModelStepMNIST {
                 })
                 .build()
                 .runMain(args1.toArgs());
-
-
     }
 }

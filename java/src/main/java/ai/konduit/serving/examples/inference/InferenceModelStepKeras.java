@@ -18,8 +18,6 @@
 package ai.konduit.serving.examples.inference;
 
 import ai.konduit.serving.InferenceConfiguration;
-import ai.konduit.serving.config.Input;
-import ai.konduit.serving.config.Output;
 import ai.konduit.serving.config.ParallelInferenceConfig;
 import ai.konduit.serving.config.ServingConfig;
 import ai.konduit.serving.configprovider.KonduitServingMain;
@@ -96,9 +94,6 @@ public class InferenceModelStepKeras {
                 .configPath(configFile.getAbsolutePath())
                 .build();
 
-        //Set sleep to wait till server started before getting any request from clients if required.
-        //Thread.sleep(60000);
-
         //Preparing input NDArray
         INDArray arr = Nd4j.create(new float[]{1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f}, 1, 10);
 
@@ -112,7 +107,7 @@ public class InferenceModelStepKeras {
         KonduitServingMain.builder()
                 .onSuccess(() -> {
                     try {
-                        String response = Unirest.post("http://localhost:" + port + "/raw/nd4j")
+                        String response = Unirest.post(String.format("http://localhost:%s/raw/nd4j", port))
                                 .field("input", file)
                                 .asString().getBody();
                         System.out.print(response);

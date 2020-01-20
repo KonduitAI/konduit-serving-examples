@@ -18,7 +18,6 @@
 package ai.konduit.serving.examples.inference;
 
 import ai.konduit.serving.InferenceConfiguration;
-import ai.konduit.serving.config.Input;
 import ai.konduit.serving.config.ServingConfig;
 import ai.konduit.serving.configprovider.KonduitServingMain;
 import ai.konduit.serving.configprovider.KonduitServingMainArgs;
@@ -82,9 +81,9 @@ public class InferenceModelStepDL4J {
                 .build();
 
         //ServingConfig set httpport and Input Formats
-        ServingConfig servingConfig = ServingConfig.builder().httpPort(port).
-               // outputDataFormat(Output.DataFormat.ND4J).
-                build();
+        ServingConfig servingConfig = ServingConfig.builder()
+                .httpPort(port)
+                .build();
 
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
@@ -114,9 +113,9 @@ public class InferenceModelStepDL4J {
         System.out.println(rand_image);
 
         KonduitServingMain.builder()
-                .onSuccess(()->{
+                .onSuccess(() -> {
                     try {
-                        String response = Unirest.post("http://localhost:"+port+"/raw/nd4j")
+                        String response = Unirest.post(String.format("http://localhost:%s/raw/nd4j", port))
                                 .field("image_array", file).asString().getBody();
                         System.out.print(response);
                     } catch (UnirestException e) {
@@ -125,6 +124,5 @@ public class InferenceModelStepDL4J {
                 })
                 .build()
                 .runMain(args1.toArgs());
-
     }
 }
