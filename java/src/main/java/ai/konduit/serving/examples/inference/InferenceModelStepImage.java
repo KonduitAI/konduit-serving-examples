@@ -17,12 +17,15 @@
 package ai.konduit.serving.examples.inference;
 
 import ai.konduit.serving.InferenceConfiguration;
-import ai.konduit.serving.config.Input;
 import ai.konduit.serving.config.Output;
 import ai.konduit.serving.config.ServingConfig;
 import ai.konduit.serving.configprovider.KonduitServingMain;
 import ai.konduit.serving.pipeline.step.ImageLoadingStep;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import org.apache.commons.io.FileUtils;
+import org.nd4j.linalg.io.ClassPathResource;
+import org.nd4j.serde.binary.BinarySerde;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,8 +50,9 @@ public class InferenceModelStepImage {
                 .dimensionsConfig("default", new Long[]{240L, 320L, 3L}) // Height, width, channels
                 .build();
 
+        int port = Util.randInt(1000, 65535);
         //ServingConfig set httpport and Input Formats
-        ServingConfig servingConfig = ServingConfig.builder().httpPort(3000).
+        ServingConfig servingConfig = ServingConfig.builder().httpPort(port).
                 outputDataFormat(Output.DataFormat.ND4J).
                 build();
 
@@ -64,10 +68,31 @@ public class InferenceModelStepImage {
         File configFile = new File("config.json");
         FileUtils.write(configFile, inferenceConfiguration.toJson(), Charset.defaultCharset());
 
-        //Start inference server as per the above configurations
-        KonduitServingMain.main("--configPath", configFile.getAbsolutePath());
+        //Preparing input images.
+        File imageFile = new ClassPathResource("images/test_img.png").getFile();
 
-        //Set sleep to wait till server started before getting any request from clients.
-        Thread.sleep(3600000);
+        //Start inference server as per the above configurations
+        KonduitServingMain.builder()
+                .onSuccess(() -> {
+                    try {
+                        String output = Unirest.post(String.format("http://localhost:%s/RAW/IMAGE",port))
+                                .field("imgPath", imageFile)
+                                .asString().getBody();
+                        //Writing response to output file
+                        File outputImagePath = new File(
+                                "java/src/main/resources/data/test-nd4j-output.zip");
+                        FileUtils.writeStringToFile(outputImagePath, output, Charset.defaultCharset());
+
+                        System.out.println(BinarySerde.readFromDisk(outputImagePath));
+
+                        System.exit(0);
+                    } catch (UnirestException | IOException e) {
+                        e.printStackTrace();
+                        System.exit(0);
+                    }
+                })
+                .build()
+                .runMain("--configPath", configFile.getAbsolutePath());
+
     }
 }
