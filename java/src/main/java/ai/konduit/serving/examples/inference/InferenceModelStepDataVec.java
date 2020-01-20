@@ -17,7 +17,6 @@
 package ai.konduit.serving.examples.inference;
 
 import ai.konduit.serving.InferenceConfiguration;
-import ai.konduit.serving.config.SchemaType;
 import ai.konduit.serving.config.ServingConfig;
 import ai.konduit.serving.configprovider.KonduitServingMain;
 import ai.konduit.serving.pipeline.step.TransformProcessStep;
@@ -31,9 +30,6 @@ import org.datavec.api.transform.schema.Schema;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-
 
 /**
  * Example for Inference for DataVec ML model using PipelineStep step .
@@ -85,18 +81,14 @@ public class InferenceModelStepDataVec {
                                 .body("{\"first\" :\"value\"}").asJson();
 
                         System.out.println(response.getBody().toString());
-
                         System.exit(0);
                     } catch (UnirestException e) {
                         e.printStackTrace();
-
                         System.exit(0);
                     }
                 })
                 .build()
                 .runMain("--configPath", configFile.getAbsolutePath());
 
-        // Waiting till the server starts and gets a response for the sent request.
-        Thread.sleep(3600000);
     }
 }
