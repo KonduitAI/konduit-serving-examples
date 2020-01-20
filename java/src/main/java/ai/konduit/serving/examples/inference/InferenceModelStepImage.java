@@ -31,7 +31,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
-
 /**
  * Example for Inference for Image ML model using Model step .
  * This illustrates only the server configuration and start server.
@@ -75,12 +74,12 @@ public class InferenceModelStepImage {
         KonduitServingMain.builder()
                 .onSuccess(() -> {
                     try {
-                        String output = Unirest.post(String.format("http://localhost:%s/RAW/IMAGE",port))
+                        String output = Unirest.post(String.format("http://localhost:%s/RAW/IMAGE", port))
                                 .field("imgPath", imageFile)
                                 .asString().getBody();
                         //Writing response to output file
                         File outputImagePath = new File(
-                                "java/src/main/resources/data/test-nd4j-output.zip");
+                                "src/main/resources/data/test-nd4j-output.zip");
                         FileUtils.writeStringToFile(outputImagePath, output, Charset.defaultCharset());
 
                         System.out.println(BinarySerde.readFromDisk(outputImagePath));
@@ -93,6 +92,5 @@ public class InferenceModelStepImage {
                 })
                 .build()
                 .runMain("--configPath", configFile.getAbsolutePath());
-
     }
 }
