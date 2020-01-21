@@ -18,6 +18,10 @@
 
 package ai.konduit.serving.examples.inference;
 
+import com.google.api.client.googleapis.media.MediaHttpDownloader;
+import com.google.api.client.googleapis.media.MediaHttpDownloaderProgressListener;
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.javanet.NetHttpTransport;
 import org.apache.commons.io.FileUtils;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -29,8 +33,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Enumeration;
@@ -42,11 +44,22 @@ import java.util.zip.ZipFile;
  * This util used to create static methods .
  */
 public class Util {
+
+    static class CustomProgressListener implements MediaHttpDownloaderProgressListener {
+        public void progressChanged(MediaHttpDownloader downloader) {
+            switch (downloader.getDownloadState()) {
+                case MEDIA_IN_PROGRESS:
+                    System.out.println(String.format("%06.2f%% downloaded", downloader.getProgress() * 100));
+                    break;
+                case MEDIA_COMPLETE:
+                    System.out.println("Download is complete!");
+            }
+        }
+    }
+
     //generating the random port for given min and max range.
     public static int randInt(int min, int max) {
-        Random rand = new Random();
-        int randomNum = rand.nextInt((max - min) + 1) + min;
-        return randomNum;
+        return new Random().nextInt((max - min) + 1) + min;
     }
 
     // Generate array with random ints between 0 to upper value
@@ -54,26 +67,32 @@ public class Util {
         return Transforms.floor(Nd4j.rand(shape).mul(upper)).divi(upper);
     }
 
-    public static File bertFileDownload(String fileURL){
+    public static File downloadBertModel(){
         String fileName = "bert.zip";
-        File bertTempDir = null;
+        File bertDownloadFile = null;
         try {
-            URL website = new URL(fileURL);
-            ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+            URL website = new URL("https://deeplearning4jblob.blob.core.windows.net/testresources/bert_mrpc_frozen_v1.zip");
             Path tempPath = Files.createTempDirectory("Bert");
-            bertTempDir = new File(String.valueOf(tempPath));
-            if (!bertTempDir.exists()) {
-                bertTempDir.mkdir();
+            bertDownloadFile = new File(tempPath.toString());
+
+            if (!bertDownloadFile.exists()) {
+                bertDownloadFile.mkdir();
             }
-            bertTempDir = new File(bertTempDir + "/" + fileName);
-            FileOutputStream fos = new FileOutputStream(bertTempDir);
-            fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-            fos.close();
-            rbc.close();
+
+            bertDownloadFile = new File(bertDownloadFile, fileName);
+            FileOutputStream fos = new FileOutputStream(bertDownloadFile);
+
+            System.out.println(String.format("Bert Model file download has started. Downloading at %s. " +
+                    "This may take several minutes depending on your internet speed.", bertDownloadFile.getAbsolutePath()));
+            System.out.println("000.00% downloaded");
+
+            new MediaHttpDownloader(new NetHttpTransport(), request -> {})
+                    .setProgressListener(new CustomProgressListener())
+                    .download(new GenericUrl(website), fos);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return bertTempDir;
+        return bertDownloadFile;
     }
 
     public static File unzipBertFile(String zipFileDir, String searchFileName ) throws IOException {
@@ -84,9 +103,9 @@ public class Util {
             Enumeration<?> enu = zipFile.entries();
             while (enu.hasMoreElements()) {
                 ZipEntry zipEntry = (ZipEntry) enu.nextElement();
-                if (zipEntry.getName().toLowerCase().indexOf(searchFileName) != -1) {
-                    for (int i = 0; i < targetPaths.length; i++) {
-                        bertFileDir = new File(targetPaths[i]);
+                if (zipEntry.getName().toLowerCase().contains(searchFileName)) {
+                    for (String targetPath : targetPaths) {
+                        bertFileDir = new File(targetPath);
                         if (!bertFileDir.exists()) {
                             bertFileDir.mkdir();
                         }

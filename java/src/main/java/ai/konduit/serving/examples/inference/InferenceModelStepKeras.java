@@ -101,6 +101,8 @@ public class InferenceModelStepKeras {
         File file = new File("src/main/resources/data/test-input.zip");
         System.out.println(file.getAbsolutePath());
 
+        if(!file.exists()) file.createNewFile();
+
         BinarySerde.writeArrayToDisk(arr, file);
 
         //Callback function  onSuccess Unirest client call.
@@ -111,8 +113,10 @@ public class InferenceModelStepKeras {
                                 .field("input", file)
                                 .asString().getBody();
                         System.out.print(response);
+                        System.exit(0);
                     } catch (UnirestException e) {
                         e.printStackTrace();
+                        System.exit(0);
                     }
                 })
                 .build()

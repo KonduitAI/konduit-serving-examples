@@ -50,6 +50,12 @@
             <version>${konduit.serving.version}</version>
             <classifier>${konduit.serving.classifier}</classifier>
         </dependency>
+
+        <dependency>
+            <groupId>com.google.api-client</groupId>
+            <artifactId>google-api-client</artifactId>
+            <version>1.30.5</version>
+        </dependency>
     </dependencies>
 
     <profiles>

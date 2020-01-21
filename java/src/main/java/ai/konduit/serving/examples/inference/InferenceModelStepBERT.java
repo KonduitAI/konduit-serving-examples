@@ -52,19 +52,18 @@ public class InferenceModelStepBERT {
     public static void main(String[] args) throws Exception {
 
         //File path for model
-        String bertmodelfilePath = new ClassPathResource("data/bert").getFile().getAbsolutePath();
-        System.out.println(bertmodelfilePath);
+        String bertDataFolder = new ClassPathResource("data/bert").getFile().getAbsolutePath();
 
         String bertFileName = "bert_mrpc_frozen.pb";
-        bertmodelfilePath = bertmodelfilePath + "/" + bertFileName;
-        File bertFile = new File(bertmodelfilePath);
+        File bertModelFile = new File(bertDataFolder, bertFileName);
 
-        //If bert_mrpc_frozen file not exist download as zip file and unzip to target folder.
-        //It will take time to download file depend on the internet speed.
-        if (!bertFile.exists()) {
-            File bertFileDir = Util.bertFileDownload("https://deeplearning4jblob.blob.core.windows.net/testresources/bert_mrpc_frozen_v1.zip");
-            Util.unzipBertFile(bertFileDir.toString(), bertFileName);
+        // If bert_mrpc_frozen file doesn't exist, download it and unzip it to target folder.
+        // This might take several minutes depending on the internet speed.
+        if (!bertModelFile.exists()) {
+            File bertDownloadedZipFile = Util.downloadBertModel();
+            Util.unzipBertFile(bertDownloadedZipFile.toString(), bertFileName);
         }
+
         //Set the tensor input data types
         HashMap<String, TensorDataType> input_data_types = new LinkedHashMap<>();
         input_data_types.put("IteratorGetNext:0", TensorDataType.INT32);
@@ -76,7 +75,7 @@ public class InferenceModelStepBERT {
                 .tensorDataTypesConfig(TensorDataTypesConfig.builder().
                         inputDataTypes(input_data_types).build())
                 .modelConfigType(ModelConfigType.builder().
-                        modelLoadingPath(bertmodelfilePath).
+                        modelLoadingPath(bertModelFile.getAbsolutePath()).
                         modelType(ModelConfig.ModelType.TENSORFLOW).build())
                 .build();
 
@@ -133,8 +132,10 @@ public class InferenceModelStepBERT {
                                 .field("IteratorGetNext:4", input4)
                                 .asString().getBody();
                         System.out.print(response);
+                        System.exit(0);
                     } catch (UnirestException e) {
                         e.printStackTrace();
+                        System.exit(0);
                     }
                 })
                 .build()

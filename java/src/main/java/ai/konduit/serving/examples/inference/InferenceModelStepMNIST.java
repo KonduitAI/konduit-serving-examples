@@ -153,9 +153,11 @@ public class InferenceModelStepMNIST {
                                     .asString().getBody();
 
                             System.out.println(result);
+                            System.exit(0);
                         }
                     } catch (UnirestException | IOException e) {
                         e.printStackTrace();
+                        System.exit(0);
                     }
                 })
                 .build()

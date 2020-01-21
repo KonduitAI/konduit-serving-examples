@@ -109,6 +109,9 @@ public class InferenceModelStepDL4J {
         INDArray rand_image = Util.randInt(new int[]{1, 3, 244, 244}, 255);
 
         File file = new File("src/main/resources/data/test-dl4j.zip");
+
+        if(!file.exists()) file.createNewFile();
+
         BinarySerde.writeArrayToDisk(rand_image, file);
         System.out.println(rand_image);
 
@@ -118,8 +121,10 @@ public class InferenceModelStepDL4J {
                         String response = Unirest.post(String.format("http://localhost:%s/raw/nd4j", port))
                                 .field("image_array", file).asString().getBody();
                         System.out.print(response);
+                        System.exit(0);
                     } catch (UnirestException e) {
                         e.printStackTrace();
+                        System.exit(0);
                     }
                 })
                 .build()
