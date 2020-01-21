@@ -21,6 +21,7 @@ package ai.konduit.serving.examples.inference;
 import org.apache.commons.io.FileUtils;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.ops.transforms.Transforms;
 
 import java.io.File;
@@ -53,7 +54,7 @@ public class Util {
         return Transforms.floor(Nd4j.rand(shape).mul(upper)).divi(upper);
     }
 
-    public static File fileDownload(String fileURL){
+    public static File bertFileDownload(String fileURL){
         String fileName = "bert.zip";
         File bertTempDir = null;
         try {
@@ -72,31 +73,34 @@ public class Util {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(bertTempDir);
         return bertTempDir;
     }
 
-    public static File unzipFile(String zipFileDir, String searchFileName ) {
+    public static File unzipBertFile(String zipFileDir, String searchFileName ) throws IOException {
+        String classFilePath = new ClassPathResource(".").getFile().getAbsolutePath();
         File bertFileDir = null;
+        String[] targetPaths = {"src/main/resources/data/bert", classFilePath+"/data/bert"};
         try (ZipFile zipFile = new ZipFile(zipFileDir)) {
             Enumeration<?> enu = zipFile.entries();
             while (enu.hasMoreElements()) {
                 ZipEntry zipEntry = (ZipEntry) enu.nextElement();
                 if (zipEntry.getName().toLowerCase().indexOf(searchFileName) != -1) {
-                    bertFileDir = new File("src/main/resources/data/bert");
-                    if (!bertFileDir.exists()) {
-                        bertFileDir.mkdir();
+                    for (int i = 0; i < targetPaths.length; i++) {
+                        bertFileDir = new File(targetPaths[i]);
+                        if (!bertFileDir.exists()) {
+                            bertFileDir.mkdir();
+                        }
+                        InputStream inputStream = zipFile.getInputStream(zipEntry);
+                        bertFileDir = new File(bertFileDir + "/" + searchFileName);
+                        FileOutputStream fos = new FileOutputStream(bertFileDir);
+                        byte[] bytes = new byte[1024];
+                        int length;
+                        while ((length = inputStream.read(bytes)) >= 0) {
+                            fos.write(bytes, 0, length);
+                        }
+                        inputStream.close();
+                        fos.close();
                     }
-                    InputStream inputStream = zipFile.getInputStream(zipEntry);
-                    bertFileDir = new File(bertFileDir + "/" + searchFileName);
-                    FileOutputStream fos = new FileOutputStream(bertFileDir);
-                    byte[] bytes = new byte[1024];
-                    int length;
-                    while ((length = inputStream.read(bytes)) >= 0) {
-                        fos.write(bytes, 0, length);
-                    }
-                    inputStream.close();
-                    fos.close();
                 }
             }
             deleteTempDirectory(new File(zipFileDir));
@@ -107,7 +111,7 @@ public class Util {
     }
 
     private static void deleteTempDirectory(File tempDir) throws IOException {
-        //get parent folder of model.jar
+        //Get parent directory for zip
         File file = new File(tempDir.getParent());
         //Delete files recursively
         try{

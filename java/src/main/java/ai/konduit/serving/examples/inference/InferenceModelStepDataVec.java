@@ -89,6 +89,5 @@ public class InferenceModelStepDataVec {
                 })
                 .build()
                 .runMain("--configPath", configFile.getAbsolutePath());
-
     }
 }

@@ -117,6 +117,5 @@ public class InferenceModelStepKeras {
                 })
                 .build()
                 .runMain(args1.toArgs());
-
     }
 }

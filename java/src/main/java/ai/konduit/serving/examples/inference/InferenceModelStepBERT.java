@@ -37,10 +37,10 @@ import org.nd4j.tensorflow.conversion.TensorDataType;
 import javax.annotation.concurrent.NotThreadSafe;
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static org.bytedeco.numpy.presets.numpy.cachePackages;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 
 /**
@@ -62,8 +62,8 @@ public class InferenceModelStepBERT {
         //If bert_mrpc_frozen file not exist download as zip file and unzip to target folder.
         //It will take time to download file depend on the internet speed.
         if (!bertFile.exists()) {
-            File bertFileDir = Util.fileDownload("https://deeplearning4jblob.blob.core.windows.net/testresources/bert_mrpc_frozen_v1.zip");
-            Util.unzipFile(bertFileDir.toString(), bertFileName);
+            File bertFileDir = Util.bertFileDownload("https://deeplearning4jblob.blob.core.windows.net/testresources/bert_mrpc_frozen_v1.zip");
+            Util.unzipBertFile(bertFileDir.toString(), bertFileName);
         }
         //Set the tensor input data types
         HashMap<String, TensorDataType> input_data_types = new LinkedHashMap<>();
@@ -76,7 +76,7 @@ public class InferenceModelStepBERT {
                 .tensorDataTypesConfig(TensorDataTypesConfig.builder().
                         inputDataTypes(input_data_types).build())
                 .modelConfigType(ModelConfigType.builder().
-                        modelLoadingPath(bertmodelfilePath.toString()).
+                        modelLoadingPath(bertmodelfilePath).
                         modelType(ModelConfig.ModelType.TENSORFLOW).build())
                 .build();
 
@@ -119,13 +119,6 @@ public class InferenceModelStepBERT {
                 .configPath(configFile.getAbsolutePath())
                 .build();
 
-        //Preparing input NDArray
-        String pythonPath = Arrays.stream(cachePackages())
-                .filter(Objects::nonNull)
-                .map(File::getAbsolutePath)
-                .collect(Collectors.joining(File.pathSeparator));
-
-        String pythonCodePath = new ClassPathResource("scripts/loadnumpy.py").getFile().getAbsolutePath();
         File input0 = new ClassPathResource("data/bert/input-0.npy").getFile();
         File input1 = new ClassPathResource("data/bert/input-1.npy").getFile();
         File input4 = new ClassPathResource("data/bert/input-4.npy").getFile();
@@ -133,7 +126,6 @@ public class InferenceModelStepBERT {
         KonduitServingMain.builder()
                 .onSuccess(() -> {
                     try {
-                        //Create new file to write binary input data.
                         //client config.
                         String response = Unirest.post(String.format("http://localhost:%s/raw/numpy", port))
                                 .field("IteratorGetNext:0", input0)
@@ -147,6 +139,5 @@ public class InferenceModelStepBERT {
                 })
                 .build()
                 .runMain(args1.toArgs());
-
     }
 }
