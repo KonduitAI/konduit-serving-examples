@@ -59,13 +59,7 @@ class InferenceModelStepONNX {
                 .pythonCodePath(pythonCodePath)
                 .pythonInput("inputimage", PythonVariables.Type.NDARRAY.name())
                 .pythonOutput("boxes", PythonVariables.Type.NDARRAY.name())
-                .pythonPath("C:\\Users\\venkat-nidrive\\AppData\\Local\\Programs\\Python\\Python37\\python37.zip;" +
-                        "C:\\Users\\venkat-nidrive`AppData\\Local\\Programs\\Python\\Python37\\" +
-                        "DLLs;C:\\Users\\venkat-nidrive\\AppData\\Local\\Programs\\Python\\Python37\\" +
-                        "lib;C:\\Users\\venkat-nidrive\\AppData\\Local\\Programs\\Python\\Python37;" +
-                        "C:\\Users\\venkat-nidrive\\AppData\\Local\\Programs\\Python\\Python37\\lib\\" +
-                        "site-packages;C:\\Users\\venkat-nidrive\\AppData\\Local\\Programs\\Python\\Python37\\lib\\site-packages\\" +
-                        "pyyaml-5.2-py3.7-win-amd64.egg;c:\\projects\\konduit-new\\konduit-serving\\python")
+                .pythonPath(pythonPath)
                 .build();
 
         //Set the configuration of python to step
