@@ -55,6 +55,8 @@ class InferenceModelStepONNX {
                 .collect(Collectors.joining(File.pathSeparator));
 
         //python configuration for input and output.
+        //To run this example please install (PIL 6.21,numpy,matplotlib 3.1.2,onnxruntime 1.1.0, torchvision 0.4.2)and
+        //set the python path "pythonPath(pythonPath)") in the python config to refer the required Python libraries.
         PythonConfig python_config = PythonConfig.builder()
                 .pythonCodePath(pythonCodePath)
                 .pythonInput("inputimage", PythonVariables.Type.NDARRAY.name())
