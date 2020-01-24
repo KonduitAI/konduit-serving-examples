@@ -4,7 +4,7 @@ from PIL import Image
 import torchvision.transforms as transforms
 import onnxruntime
 from matplotlib.image import imread
-dl_path = os.path.abspath("../data/facedetector/facedetector.onnx")
+dl_path = os.path.abspath("./src/main/resources/data/facedetector/facedetector.onnx")
 sys.path.append(dl_path)
 a,b,c,d=inputimage.shape
 inputimage=inputimage.reshape(b,c,d)
