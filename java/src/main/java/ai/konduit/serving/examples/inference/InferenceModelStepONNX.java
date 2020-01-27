@@ -26,21 +26,17 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import org.apache.commons.io.FileUtils;
 import org.datavec.python.PythonVariables;
+import org.nd4j.base.Preconditions;
 import org.nd4j.linalg.io.ClassPathResource;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import static org.bytedeco.numpy.presets.numpy.cachePackages;
 
 @NotThreadSafe
 
-
-/**
+/*
  * Example for Inference for ONNX ML model using python step .
  * This illustrates only the server configuration and start server.
  */
@@ -49,14 +45,21 @@ class InferenceModelStepONNX {
 
         String pythonCodePath = new ClassPathResource("scripts/onnxFacedetect.py").getFile().getAbsolutePath();
 
-        String pythonPath = Arrays.stream(cachePackages())
-                .filter(Objects::nonNull)
-                .map(File::getAbsolutePath)
-                .collect(Collectors.joining(File.pathSeparator));
+        /* To run this example please install (PIL 6.21, numpy, onnxruntime 1.1.0, torchvision 0.4.2) and
+         * set the "pythonPath" variable in this example to refer to the required Python libraries.
+         * To find the python path, execute the following script on CLI:
+         * python -c "import sys, os; print(os.pathsep.join([path for path in sys.path if path]))"
+         * and replace the variable down below...
+         */
+        String pythonPath = null;
+
+        Preconditions.checkNotNull(pythonPath, "\"pythonPath\" variable shouldn't be null. " +
+                "\n\nTo run this example please install (PIL 6.21, numpy, onnxruntime 1.1.0, torchvision 0.4.2) and\n" +
+                "set the \"pythonPath\" variable in this example to refer to the required Python libraries.\n" +
+                "To find the python path, execute the following script on CLI:\n" +
+                "\npython -c \"import sys, os; print(os.pathsep.join([path for path in sys.path if path]))\"\n\n");
 
         //python configuration for input and output.
-        //To run this example please install (PIL 6.21,numpy,matplotlib 3.1.2,onnxruntime 1.1.0, torchvision 0.4.2)and
-        //set the python path "pythonPath(pythonPath)") in the python config to refer the required Python libraries.
         PythonConfig python_config = PythonConfig.builder()
                 .pythonCodePath(pythonCodePath)
                 .pythonInput("inputimage", PythonVariables.Type.NDARRAY.name())

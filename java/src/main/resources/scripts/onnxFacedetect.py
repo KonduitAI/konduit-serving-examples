@@ -3,8 +3,12 @@ import numpy as np
 from PIL import Image
 import torchvision.transforms as transforms
 import onnxruntime
-from matplotlib.image import imread
-dl_path = os.path.abspath("./src/main/resources/data/facedetector/facedetector.onnx")
+
+if os.path.isdir("java/src/main/resources/data/facedetector"):
+    dl_path = os.path.abspath("java/src/main/resources/data/facedetector/facedetector.onnx")
+else:
+    dl_path = os.path.abspath("./src/main/resources/data/facedetector/facedetector.onnx")
+
 sys.path.append(dl_path)
 a,b,c,d=inputimage.shape
 inputimage=inputimage.reshape(b,c,d)
