@@ -19,6 +19,7 @@ package ai.konduit.serving.examples.inference;
 
 import ai.konduit.serving.InferenceConfiguration;
 import ai.konduit.serving.config.ParallelInferenceConfig;
+import ai.konduit.serving.config.ServingConfig;
 import ai.konduit.serving.deploy.DeployKonduitServing;
 import ai.konduit.serving.model.TensorDataType;
 import ai.konduit.serving.pipeline.step.ImageLoadingStep;
@@ -61,6 +62,7 @@ public class InferenceModelStepMNIST {
 
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
+                .servingConfig(new ServingConfig())
                 .step(bertModelStep)
                 .build();
 

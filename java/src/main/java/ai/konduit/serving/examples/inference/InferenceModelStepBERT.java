@@ -75,6 +75,7 @@ public class InferenceModelStepBERT {
 
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
+                .servingConfig(new ServingConfig())
                 .step(bertModelStep)
                 .build();
 

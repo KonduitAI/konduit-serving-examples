@@ -19,6 +19,7 @@ package ai.konduit.serving.examples.inference;
 
 import ai.konduit.serving.InferenceConfiguration;
 import ai.konduit.serving.config.ParallelInferenceConfig;
+import ai.konduit.serving.config.ServingConfig;
 import ai.konduit.serving.deploy.DeployKonduitServing;
 import ai.konduit.serving.pipeline.step.ModelStep;
 import ai.konduit.serving.pipeline.step.model.KerasStep;
@@ -56,6 +57,7 @@ public class InferenceModelStepKeras {
 
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
+                .servingConfig(new ServingConfig())
                 .step(kerasmodelStep)
                 .build();
 

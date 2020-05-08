@@ -17,6 +17,7 @@
 package ai.konduit.serving.examples.inference;
 
 import ai.konduit.serving.InferenceConfiguration;
+import ai.konduit.serving.config.ServingConfig;
 import ai.konduit.serving.deploy.DeployKonduitServing;
 import ai.konduit.serving.model.PythonConfig;
 import ai.konduit.serving.pipeline.step.ImageLoadingStep;
@@ -29,7 +30,6 @@ import org.nd4j.common.io.ClassPathResource;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import java.io.File;
-import java.util.Arrays;
 
 @NotThreadSafe
 
@@ -75,7 +75,10 @@ class InferenceModelStepONNX {
 
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
-                .steps(Arrays.asList(imageLoadingStep, onnx_step)).build();
+                .servingConfig(new ServingConfig())
+                .step(imageLoadingStep)
+                .step(onnx_step)
+                .build();
 
         //Print the configuration to make sure our settings correctly set.
         System.out.println(inferenceConfiguration.toJson());

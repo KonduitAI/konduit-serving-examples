@@ -18,6 +18,7 @@
 package ai.konduit.serving.examples.inference;
 
 import ai.konduit.serving.InferenceConfiguration;
+import ai.konduit.serving.config.ServingConfig;
 import ai.konduit.serving.deploy.DeployKonduitServing;
 import ai.konduit.serving.model.TensorDataType;
 import ai.konduit.serving.pipeline.step.model.Dl4jStep;
@@ -40,6 +41,7 @@ public class InferenceModelStepDL4J {
 
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
+                .servingConfig(new ServingConfig())
                 .step(Dl4jStep.builder()
                         .path(new ClassPathResource("data/multilayernetwork/SimpleCNN.zip").getFile().getAbsolutePath())
                         .inputDataType("image_array",  TensorDataType.FLOAT)

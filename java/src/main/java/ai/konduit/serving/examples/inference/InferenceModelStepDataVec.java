@@ -51,7 +51,9 @@ public class InferenceModelStepDataVec {
 
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
-                .step( new TransformProcessStep(transformProcess, outputSchema)).build();
+                .servingConfig(new ServingConfig())
+                .step(new TransformProcessStep(transformProcess, outputSchema))
+                .build();
 
         //Print the configuration to make sure our settings correctly set.
         System.out.println(inferenceConfiguration.toJson());
