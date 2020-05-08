@@ -20,27 +20,17 @@ package ai.konduit.serving.examples.inference;
 import ai.konduit.serving.InferenceConfiguration;
 import ai.konduit.serving.config.ParallelInferenceConfig;
 import ai.konduit.serving.config.ServingConfig;
-import ai.konduit.serving.configprovider.KonduitServingMain;
-import ai.konduit.serving.configprovider.KonduitServingMainArgs;
-import ai.konduit.serving.model.ModelConfig;
-import ai.konduit.serving.model.ModelConfigType;
-import ai.konduit.serving.model.TensorDataTypesConfig;
-import ai.konduit.serving.model.TensorFlowConfig;
+import ai.konduit.serving.deploy.DeployKonduitServing;
+import ai.konduit.serving.model.TensorDataType;
 import ai.konduit.serving.pipeline.step.ModelStep;
-import ai.konduit.serving.verticles.inference.InferenceVerticle;
+import ai.konduit.serving.pipeline.step.model.TensorFlowStep;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import org.apache.commons.io.FileUtils;
-import org.nd4j.linalg.io.ClassPathResource;
-import org.nd4j.tensorflow.conversion.TensorDataType;
+import org.nd4j.common.io.ClassPathResource;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import java.io.File;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
 
 
 /**
@@ -64,81 +54,57 @@ public class InferenceModelStepBERT {
             Util.unzipBertFile(bertDownloadedZipFile.toString(), bertFileName);
         }
 
-        //Set the tensor input data types
-        HashMap<String, TensorDataType> input_data_types = new LinkedHashMap<>();
-        input_data_types.put("IteratorGetNext:0", TensorDataType.INT32);
-        input_data_types.put("IteratorGetNext:1", TensorDataType.INT32);
-        input_data_types.put("IteratorGetNext:4", TensorDataType.INT32);
+        String[] inputNames = new String[] {
+                "IteratorGetNext:0",
+                "IteratorGetNext:1",
+                "IteratorGetNext:4"
+        };
 
-        //Model config and set model type as BERT
-        ModelConfig bertModelConfig = TensorFlowConfig.builder()
-                .tensorDataTypesConfig(TensorDataTypesConfig.builder().
-                        inputDataTypes(input_data_types).build())
-                .modelConfigType(ModelConfigType.builder().
-                        modelLoadingPath(bertModelFile.getAbsolutePath()).
-                        modelType(ModelConfig.ModelType.TENSORFLOW).build())
-                .build();
-
-        //Set the input and output names for model step
-        List<String> input_names = new ArrayList<>(input_data_types.keySet());
         ArrayList<String> output_names = new ArrayList<>();
         output_names.add("loss/Softmax");
 
         //Set the configuration of model to step
-        ModelStep bertModelStep = ModelStep.builder()
-                .modelConfig(bertModelConfig)
-                .inputNames(input_names)
+        ModelStep bertModelStep = TensorFlowStep.builder()
+                .inputDataType(inputNames[0], TensorDataType.INT32)
+                .inputDataType(inputNames[1], TensorDataType.INT32)
+                .inputDataType(inputNames[2], TensorDataType.INT32)
+                .path(bertModelFile.getAbsolutePath())
                 .outputNames(output_names)
                 .parallelInferenceConfig(ParallelInferenceConfig.builder().workers(1).build())
                 .build();
 
-        //ServingConfig set httpport and Input Formats
-        int port = Util.randInt(1000, 65535);
-        ServingConfig servingConfig = ServingConfig.builder()
-                .httpPort(port)
-                .build();
-
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
-                .servingConfig(servingConfig)
                 .step(bertModelStep)
                 .build();
 
         //Print the configuration to make sure our settings correctly set.
         System.out.println(inferenceConfiguration.toJson());
 
-        File configFile = new File("config.json");
-        FileUtils.write(configFile, inferenceConfiguration.toJson(), Charset.defaultCharset());
-
-        //Start inference server as per the above configurations
-        KonduitServingMainArgs args1 = KonduitServingMainArgs.builder()
-                .configStoreType("file").ha(false)
-                .multiThreaded(false).configPort(port)
-                .verticleClassName(InferenceVerticle.class.getName())
-                .configPath(configFile.getAbsolutePath())
-                .build();
-
         File input0 = new ClassPathResource("data/bert/input-0.npy").getFile();
         File input1 = new ClassPathResource("data/bert/input-1.npy").getFile();
         File input4 = new ClassPathResource("data/bert/input-4.npy").getFile();
 
-        KonduitServingMain.builder()
-                .onSuccess(() -> {
-                    try {
-                        //client config.
-                        String response = Unirest.post(String.format("http://localhost:%s/raw/numpy", port))
-                                .field("IteratorGetNext:0", input0)
-                                .field("IteratorGetNext:1", input1)
-                                .field("IteratorGetNext:4", input4)
-                                .asString().getBody();
-                        System.out.print(response);
-                        System.exit(0);
-                    } catch (UnirestException e) {
-                        e.printStackTrace();
-                        System.exit(0);
-                    }
-                })
-                .build()
-                .runMain(args1.toArgs());
+        DeployKonduitServing.deployInference(inferenceConfiguration, handler -> {
+            if(handler.succeeded()) {
+                try {
+                    //client config.
+                    String response = Unirest.post(String.format("http://localhost:%s/raw/numpy",
+                            handler.result().getServingConfig().getHttpPort()))
+                            .field(inputNames[0], input0)
+                            .field(inputNames[1], input1)
+                            .field(inputNames[2], input4)
+                            .asString().getBody();
+                    System.out.print(response);
+                } catch (UnirestException e) {
+                    e.printStackTrace();
+                }
+
+                System.exit(0);
+            } else {
+                handler.cause().printStackTrace();
+                System.exit(1);
+            }
+        });
     }
 }

@@ -17,21 +17,18 @@
 package ai.konduit.serving.examples.inference;
 
 import ai.konduit.serving.InferenceConfiguration;
-import ai.konduit.serving.config.ServingConfig;
-import ai.konduit.serving.configprovider.KonduitServingMain;
+import ai.konduit.serving.deploy.DeployKonduitServing;
 import ai.konduit.serving.model.PythonConfig;
 import ai.konduit.serving.pipeline.step.ImageLoadingStep;
 import ai.konduit.serving.pipeline.step.PythonStep;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import org.apache.commons.io.FileUtils;
-import org.datavec.python.PythonVariables;
-import org.nd4j.base.Preconditions;
-import org.nd4j.linalg.io.ClassPathResource;
+import org.datavec.python.PythonType;
+import org.nd4j.common.base.Preconditions;
+import org.nd4j.common.io.ClassPathResource;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import java.io.File;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 
 @NotThreadSafe
@@ -62,18 +59,13 @@ class InferenceModelStepONNX {
         //python configuration for input and output.
         PythonConfig python_config = PythonConfig.builder()
                 .pythonCodePath(pythonCodePath)
-                .pythonInput("inputimage", PythonVariables.Type.NDARRAY.name())
-                .pythonOutput("boxes", PythonVariables.Type.NDARRAY.name())
+                .pythonInput("inputimage", PythonType.TypeName.NDARRAY.name())
+                .pythonOutput("boxes", PythonType.TypeName.NDARRAY.name())
                 .pythonPath(pythonPath)
                 .build();
 
         //Set the configuration of python to step
         PythonStep onnx_step = new PythonStep().step(python_config);
-
-        //ServingConfig set httpport and Input Formats
-        int port = Util.randInt(1000, 65535);
-        ServingConfig servingConfig = ServingConfig.builder().httpPort(port).
-                build();
 
         //Image Loading step for image transform
         ImageLoadingStep imageLoadingStep = ImageLoadingStep.builder()
@@ -83,34 +75,34 @@ class InferenceModelStepONNX {
 
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
-                .steps(Arrays.asList(imageLoadingStep, onnx_step)).servingConfig(servingConfig).build();
+                .steps(Arrays.asList(imageLoadingStep, onnx_step)).build();
 
         //Print the configuration to make sure our settings correctly set.
         System.out.println(inferenceConfiguration.toJson());
-
-        File configFile = new File("config.json");
-        FileUtils.write(configFile, inferenceConfiguration.toJson(), Charset.defaultCharset());
 
         //Preparing input images.
         File imageOnnx = new ClassPathResource("data/facedetector/OnnxImageTest.jpg").getFile();
 
         //Start inference server as per the above configurations
-        KonduitServingMain.builder()
-                .onSuccess(() -> {
-                    try {
-                        String response = Unirest.post(String.format("http://localhost:%s/raw/image", port))
-                                .field("inputimage", imageOnnx)
-                                .asString().getBody();
+        DeployKonduitServing.deployInference(inferenceConfiguration, handler -> {
+            if(handler.succeeded()) {
+                try {
+                    String response = Unirest.post(String.format("http://localhost:%s/raw/image",
+                            handler.result().getServingConfig().getHttpPort()))
+                            .field("inputimage", imageOnnx)
+                            .asString().getBody();
 
-                        System.out.println(response);
-                        System.exit(0);
-                    } catch (UnirestException e) {
-                        e.printStackTrace();
-                        System.exit(0);
-                    }
-                })
-                .build()
-                .runMain("--configPath", configFile.getAbsolutePath());
+                    System.out.println(response);
+                } catch (UnirestException e) {
+                    e.printStackTrace();
+                }
+
+                System.exit(0);
+            } else {
+                handler.cause().printStackTrace();
+                System.exit(1);
+            }
+        });
     }
 
 }

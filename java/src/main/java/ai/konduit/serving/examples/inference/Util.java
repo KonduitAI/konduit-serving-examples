@@ -25,7 +25,7 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import org.apache.commons.io.FileUtils;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.io.ClassPathResource;
+import org.nd4j.common.io.ClassPathResource;
 import org.nd4j.linalg.ops.transforms.Transforms;
 
 import java.io.File;

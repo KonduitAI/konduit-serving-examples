@@ -5,14 +5,15 @@ serving:
   log_timings: True
   extra_start_args: -Xmx8g
 steps:
-  python_step:
-    type: PYTHON
-    python_code: |
-      first += 2
-      second = first
-    python_inputs:
-      first: NDARRAY
-    python_outputs:
-      second: NDARRAY
+  - type: PYTHON
+    python_configs:
+      default:
+        python_code: |
+          first += 2
+          second = first
+        python_inputs:
+          first: NDARRAY
+        python_outputs:
+          second: NDARRAY
 client:
     port: 1337

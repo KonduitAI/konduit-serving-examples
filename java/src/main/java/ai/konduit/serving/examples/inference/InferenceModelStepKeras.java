@@ -19,24 +19,18 @@ package ai.konduit.serving.examples.inference;
 
 import ai.konduit.serving.InferenceConfiguration;
 import ai.konduit.serving.config.ParallelInferenceConfig;
-import ai.konduit.serving.config.ServingConfig;
-import ai.konduit.serving.configprovider.KonduitServingMain;
-import ai.konduit.serving.configprovider.KonduitServingMainArgs;
-import ai.konduit.serving.model.ModelConfig;
-import ai.konduit.serving.model.ModelConfigType;
+import ai.konduit.serving.deploy.DeployKonduitServing;
 import ai.konduit.serving.pipeline.step.ModelStep;
-import ai.konduit.serving.verticles.inference.InferenceVerticle;
+import ai.konduit.serving.pipeline.step.model.KerasStep;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import org.apache.commons.io.FileUtils;
+import org.nd4j.common.io.ClassPathResource;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.serde.binary.BinarySerde;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import java.io.File;
-import java.nio.charset.Charset;
 
 /**
  * Example for Inference for KERAS ML model using Model step .
@@ -52,47 +46,21 @@ public class InferenceModelStepKeras {
         String kerasmodelfilePath = new ClassPathResource("data/keras/embedding_lstm_tensorflow_2.h5").
                 getFile().getAbsolutePath();
 
-        //Model config and set model type as KERAS
-        ModelConfig kerasModelConfig = ModelConfig.builder()
-                .modelConfigType(ModelConfigType.builder().
-                        modelLoadingPath(kerasmodelfilePath).
-                        modelType(ModelConfig.ModelType.KERAS).build())
-                .build();
-
         //Set the configuration of model to step
-        ModelStep kerasmodelStep = ModelStep.builder()
-                .modelConfig(kerasModelConfig)
+        ModelStep kerasmodelStep = KerasStep.builder()
+                .path(kerasmodelfilePath)
                 .inputName("input")
                 .outputName("lstm_1")
                 .parallelInferenceConfig(ParallelInferenceConfig.builder().workers(1).build())
                 .build();
 
-        int port = Util.randInt(1000, 65535);
-
-        //ServingConfig set httpport and Input Formats
-        ServingConfig servingConfig = ServingConfig.builder().httpPort(port).
-                build();
-
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
-                .servingConfig(servingConfig)
                 .step(kerasmodelStep)
                 .build();
 
         //Print the configuration to make sure our settings correctly set.
         System.out.println(inferenceConfiguration.toJson());
-
-        File configFile = new File("config.json");
-        FileUtils.write(configFile, inferenceConfiguration.toJson(), Charset.defaultCharset());
-
-        //Start inference server as per the above configurations
-        //KonduitServingMain.main("--configPath", configFile.getAbsolutePath());
-        KonduitServingMainArgs args1 = KonduitServingMainArgs.builder()
-                .configStoreType("file").ha(false)
-                .multiThreaded(false).configPort(port)
-                .verticleClassName(InferenceVerticle.class.getName())
-                .configPath(configFile.getAbsolutePath())
-                .build();
 
         //Preparing input NDArray
         INDArray arr = Nd4j.create(new float[]{1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f}, 1, 10);
@@ -106,20 +74,23 @@ public class InferenceModelStepKeras {
         BinarySerde.writeArrayToDisk(arr, file);
 
         //Callback function  onSuccess Unirest client call.
-        KonduitServingMain.builder()
-                .onSuccess(() -> {
-                    try {
-                        String response = Unirest.post(String.format("http://localhost:%s/raw/nd4j", port))
-                                .field("input", file)
-                                .asString().getBody();
-                        System.out.print(response);
-                        System.exit(0);
-                    } catch (UnirestException e) {
-                        e.printStackTrace();
-                        System.exit(0);
-                    }
-                })
-                .build()
-                .runMain(args1.toArgs());
+        DeployKonduitServing.deployInference(inferenceConfiguration, handler -> {
+            if(handler.succeeded()) {
+                try {
+                    String response = Unirest.post(String.format("http://localhost:%s/raw/nd4j",
+                            handler.result().getServingConfig().getHttpPort()))
+                            .field("input", file)
+                            .asString().getBody();
+                    System.out.print(response);
+                } catch (UnirestException e) {
+                    e.printStackTrace();
+                }
+
+                System.exit(0);
+            } else {
+                handler.cause().printStackTrace();
+                System.exit(1);
+            }
+        });
     }
 }

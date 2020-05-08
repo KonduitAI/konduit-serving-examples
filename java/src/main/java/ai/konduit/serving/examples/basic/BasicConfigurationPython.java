@@ -4,9 +4,10 @@ import ai.konduit.serving.model.PythonConfig;
 import ai.konduit.serving.pipeline.step.PythonStep;
 import org.datavec.api.writable.NDArrayWritable;
 import org.datavec.api.writable.Writable;
+import org.datavec.python.PythonType;
 import org.datavec.python.PythonVariables;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.io.ClassPathResource;
+import org.nd4j.common.io.ClassPathResource;
 
 import java.io.File;
 import java.util.Arrays;
@@ -33,8 +34,8 @@ public class BasicConfigurationPython {
         PythonConfig pythonConfig = PythonConfig.builder()
                 .pythonPath(pythonPath) // If not null, this python path will be used.
                 .pythonCodePath(pythonCodePath)
-                .pythonInput("x", PythonVariables.Type.STR.name())
-                .pythonOutput("y", PythonVariables.Type.NDARRAY.name())
+                .pythonInput("x", PythonType.TypeName.STR.name())
+                .pythonOutput("y", PythonType.TypeName.NDARRAY.name())
                 .build();
 
         PythonStep pythonPipelineStep = new PythonStep().step(pythonConfig);

@@ -18,18 +18,14 @@ package ai.konduit.serving.examples.inference;
 
 import ai.konduit.serving.InferenceConfiguration;
 import ai.konduit.serving.config.ServingConfig;
-import ai.konduit.serving.configprovider.KonduitServingMain;
+import ai.konduit.serving.deploy.DeployKonduitServing;
 import ai.konduit.serving.pipeline.step.TransformProcessStep;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import org.apache.commons.io.FileUtils;
 import org.datavec.api.transform.TransformProcess;
 import org.datavec.api.transform.schema.Schema;
-
-import java.io.File;
-import java.nio.charset.Charset;
 
 /**
  * Example for Inference for DataVec ML model using PipelineStep step .
@@ -38,56 +34,47 @@ import java.nio.charset.Charset;
 public class InferenceModelStepDataVec {
     public static void main(String[] args) throws Exception {
 
+        String columnName = "first";
+
         // Define the input schema with string column
         Schema inputSchema = new Schema.Builder()
-                .addColumnString("first")
+                .addColumnString(columnName)
                 .build();
         // Define the input schema with string column
         Schema outputSchema = new Schema.Builder()
-                .addColumnString("first")
+                .addColumnString(columnName)
                 .build();
 
         //  Define a transform process that operates on the defined inputs.
         TransformProcess transformProcess = new TransformProcess.Builder(inputSchema).
-                appendStringColumnTransform("first", "two").build();
-
-        int port = Util.randInt(1000, 65535);
-
-        /*
-         * Now we'll create the pipeline step for the transform process
-         */
-        TransformProcessStep transformProcessStep = new TransformProcessStep(transformProcess, outputSchema);
-
-        ServingConfig servingConfig = ServingConfig.builder()
-                .httpPort(port)
-                .build();
+                appendStringColumnTransform(columnName, "two").build();
 
         //Inference Configuration
         InferenceConfiguration inferenceConfiguration = InferenceConfiguration.builder()
-                .step(transformProcessStep).servingConfig(servingConfig).build();
+                .step( new TransformProcessStep(transformProcess, outputSchema)).build();
 
         //Print the configuration to make sure our settings correctly set.
         System.out.println(inferenceConfiguration.toJson());
 
-        File configFile = new File("config.json");
-        FileUtils.write(configFile, inferenceConfiguration.toJson(), Charset.defaultCharset());
-
         //Start inference server as per the above configurations
-        KonduitServingMain.builder()
-                .onSuccess(() -> {
-                    try {
-                        HttpResponse<JsonNode> response = Unirest.post(String.format("http://localhost:%s/raw/json", port))
-                                .header("Content-Type", "application/json")
-                                .body("{\"first\" :\"value\"}").asJson();
+        DeployKonduitServing.deployInference(inferenceConfiguration, handler -> {
+           if(handler.succeeded()) {
+               try {
+                   HttpResponse<JsonNode> response = Unirest.post(String.format("http://localhost:%s/raw/json",
+                           handler.result().getServingConfig().getHttpPort()))
+                           .header("Content-Type", "application/json")
+                           .body("{\"first\" :\"value\"}").asJson();
 
-                        System.out.println(response.getBody().toString());
-                        System.exit(0);
-                    } catch (UnirestException e) {
-                        e.printStackTrace();
-                        System.exit(0);
-                    }
-                })
-                .build()
-                .runMain("--configPath", configFile.getAbsolutePath());
+                   System.out.println(response.getBody().toString());
+               } catch (UnirestException e) {
+                   e.printStackTrace();
+               }
+
+               System.exit(0);
+           } else {
+               handler.cause().printStackTrace();
+               System.exit(1);
+           }
+        });
     }
 }

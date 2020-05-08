@@ -5,7 +5,7 @@ import org.datavec.api.writable.NDArrayWritable;
 import org.datavec.api.writable.Writable;
 import org.datavec.image.transform.ImageTransformProcess;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.io.ClassPathResource;
+import org.nd4j.common.io.ClassPathResource;
 
 import java.util.Arrays;
 

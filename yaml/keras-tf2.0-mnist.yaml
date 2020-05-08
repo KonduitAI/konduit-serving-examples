@@ -3,8 +3,7 @@ serving:
   input_data_format: NUMPY
   output_data_format: NUMPY
 steps:
-  keras_step:
-    type: KERAS
+  - type: KERAS
     model_loading_path: ../data/keras/mnist_keras.h5
     input_names:
     - input_layer
