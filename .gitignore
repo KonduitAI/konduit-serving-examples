@@ -2,8 +2,8 @@
 .idea
 
 konduit.jar
-konduit-serving.pid 
-config.json
+konduit-serving.pid
+
 
 *.log
 *.iml

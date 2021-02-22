@@ -1,0 +1,9 @@
+{
+    "batch_size": 32,
+    "data_out": "bmi_dataset_public/bmi_dataset/out",
+    "epochs": 100,
+    "name": "simple_experiment",
+    "seed": 42,
+    "train_dataset": "bmi_dataset_public/bmi_dataset/train",
+    "val_dataset": "bmi_dataset_public/bmi_dataset/val"
+}

@@ -1,0 +1,18 @@
+---
+host: "localhost"
+port: 0
+protocol: "HTTP"
+pipeline:
+  steps:
+  - '@type': "ONNX"
+    modelUri: "iris.onnx"
+    inputNames:
+    - "input"
+    outputNames:
+    - "output"
+  - '@type': "CLASSIFIER_OUTPUT"
+    input_name: "output"
+    labels:
+      - Setosa
+      - Versicolor
+      - Virginica

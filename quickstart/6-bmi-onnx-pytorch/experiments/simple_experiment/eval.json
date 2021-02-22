@@ -1,0 +1,14 @@
+{
+    " Mean absolute difference : ": 0.2659022710152688,
+    "Correct class prediction": 52.0,
+    "Wrong class prediction": 140.0,
+    "in_shape": [
+        32,
+        3,
+        112,
+        112
+    ],
+    "out_shape": [
+        32
+    ]
+}

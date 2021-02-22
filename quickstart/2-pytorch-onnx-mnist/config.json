@@ -1,0 +1,42 @@
+{
+  "host" : "localhost",
+  "port" : 0,
+  "protocol" : "HTTP",
+  "pipeline" : {
+    "steps" : [ {
+      "@type" : "IMAGE_TO_NDARRAY",
+      "config" : {
+        "height" : 28,
+        "width" : 28,
+        "dataType" : "FLOAT",
+        "includeMinibatchDim" : true,
+        "aspectRatioHandling" : "CENTER_CROP",
+        "format" : "CHANNELS_FIRST",
+        "channelLayout" : "GRAYSCALE",
+        "normalization" : {
+          "type" : "SCALE"
+        },
+        "listHandling" : "NONE"
+      },
+      "keys" : [ "image" ],
+      "outputNames" : [ "Input3" ],
+      "keepOtherValues" : true,
+      "metadata" : false,
+      "metadataKey" : "@ImageToNDArrayStepMetadata"
+    }, {
+      "@type" : "LOGGING",
+      "logLevel" : "INFO",
+      "log" : "KEYS_AND_VALUES"
+    }, {
+      "@type" : "ONNX",
+      "modelUri" : "mnist.onnx",
+      "inputNames" : [ "Input3" ],
+      "outputNames" : [ "Plus214_Output_0" ]
+    }, {
+      "@type" : "CLASSIFIER_OUTPUT",
+      "inputName" : "Plus214_Output_0",
+      "labels" : [ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" ],
+      "allProbabilities" : false
+    } ]
+  }
+}

@@ -1,0 +1,175 @@
+<!doctype html>
+<html style="background-color: darkgrey">
+<head>
+    <title>BMI - Konduit-Serving</title>
+    <link href="app.css" rel="stylesheet">
+    <link rel="icon" href="favicon.ico" type="image/x-icon"/>
+</head>
+<body>
+<div style="display: flex; justify-content: center">
+    <h1>BMI ON KONDUIT-SERVING</h1>
+</div>
+<div style="display: flex; justify-content: center">
+    <button id="actionBtn" style="width: 640px; height: 100px; font-family: 'Courier New'; font-size: 20px">WAIT APP LOADING ...</button>
+</div>
+<video id="video" width="640" height="480" hidden></video>
+<div class="container" style="display: flex; justify-content: center">
+    <canvas id="canvasOutput"></canvas>
+</div>
+<canvas id="canvasOutput2" hidden></canvas>
+<script async src="opencv.js" type="text/javascript" onload="onCvLoaded();"></script>
+<script>
+function onCvLoaded () {
+    console.log('cv', cv);
+    cv.onRuntimeInitialized = onReady;
+}
+const video = document.getElementById('video');
+const actionBtn = document.getElementById('actionBtn');
+const width = 640;
+const height = 480;
+const FPS = 15;
+let stream;
+let streaming = false;
+function onReady () {
+    let src;
+    let dst;
+    const cap = new cv.VideoCapture(video);
+    const canvas = document.getElementById('canvasOutput2');
+
+    actionBtn.addEventListener('click', () => {
+        if (streaming) {
+            stop();
+            actionBtn.textContent = 'START';
+        } else {
+            start();
+            actionBtn.textContent = 'STOP';
+        }
+    });
+
+    function start () {
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+        .then(_stream => {
+            stream = _stream;
+            console.log('stream', stream);
+            video.srcObject = stream;
+            video.play();
+            streaming = true;
+            src = new cv.Mat(height, width, cv.CV_8UC4);
+            dst = new cv.Mat(height, width, cv.CV_8UC4);
+            setTimeout(processVideo, 0)
+        })
+        .catch(err => console.log(`An error occurred: ${err}`));
+    }
+
+    function stop () {
+        if (video) {
+            video.pause();
+            video.srcObject = null;
+        }
+        if (stream) {
+            stream.getVideoTracks()[0].stop();
+        }
+        streaming = false;
+    }
+
+    function dataURItoBlob(dataURI) {
+     // convert base64/URLEncoded data component to raw binary data held in a string
+      let byteString;
+
+      if (dataURI.split(',')[0].indexOf('base64') >= 0)
+        byteString = atob(dataURI.split(',')[1]);
+      else
+        byteString = unescape(dataURI.split(',')[1]);
+
+      // separate out the mime component
+      let mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+      // write the bytes of the string to a typed array
+      let ia = new Uint8Array(byteString.length);
+
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+
+      return new Blob([ia], {
+        type: mimeString
+      });
+    }
+
+    async function processVideo () {
+        if (!streaming) {
+            src.delete();
+            dst.delete();
+            return;
+        }
+        const begin = Date.now();
+        cap.read(src)
+
+        //cv.rectangle(src, new cv.Point(10, 10), new cv.Point(100, 100), new cv.Scalar(255, 0, 0, 255), 2)
+
+        cv.imshow('canvasOutput2', src);
+        let base64Image = canvas.toDataURL('image/jpeg', 1.0);//.replace("data:image/png;base64,", "");
+        //console.log(base64Image);
+
+        let blob = dataURItoBlob(base64Image);
+        console.log(await blob.arrayBuffer());
+        let formData = new FormData();
+        formData.append('image', blob, 'image.png');
+
+        const request = new XMLHttpRequest();
+        request.open("POST", '/predict', false);
+        request.setRequestHeader("Accept", "application/json");
+        //request.timeout = 2000; // time in milliseconds
+        request.send(formData);
+
+        if(request.status === 200) {
+            console.log(request.status + " " + request.responseText);
+            let jsonResponse = JSON.parse(request.responseText);
+            if(jsonResponse['bmi_value'] !== -1) {
+                box = jsonResponse['boxes']
+
+                _height = height;
+                _width = width;
+                x1 = box[0];
+                y1 = box[1];
+                x2 = box[2];
+                y2 = box[3];
+                x1 = x1 - 0.1 * x1;
+                y1 = y1 - 0.1 * y1;
+                x2 = x2 + 0.1 * x2;
+                y2 = y2 + 0.1 * y2;
+                w = x2 - x1 + 1;
+                h = y2 - y1 + 1;
+                size = Math.max(w * 1.1, h * 1.1);
+                cx = x1 + w; // 2
+                cy = y1 + h; // 2
+                x1 = cx - size; // 2
+                x2 = x1 + size;
+                y1 = cy - size; // 2
+                y2 = y1 + size;
+                x1 = Math.max(0, x1);
+                y1 = Math.max(0, y1);
+
+                x2 = Math.min(_width, x2);
+                y2 = Math.min(_height, y2);
+
+                cv.rectangle(src, new cv.Point(x1, y1), new cv.Point(x2, y2), new cv.Scalar(255, 0, 0, 255), 2);
+                cv.putText(src, jsonResponse['bmi_class'], new cv.Point(x1 + 5, y1 - 5), 1, 2, new cv.Scalar(255, 0, 0, 255), 2);
+                cv.putText(src, jsonResponse['bmi_value'].toString(), new cv.Point(x1 + 5, y2), 1, 2, new cv.Scalar(255, 0, 0, 255), 2);
+
+                cv.imshow('canvasOutput', src)
+            }
+        } else {
+            console.log("Error occurred. Status: " + request.status + ". Response: " + request.responseText)
+        }
+
+        const delay = 1000/FPS - (Date.now() - begin);
+        setTimeout(processVideo, delay);
+    }
+
+    actionBtn.textContent = 'CLICK TO START';
+}
+
+</script>
+</body>
+</html>
