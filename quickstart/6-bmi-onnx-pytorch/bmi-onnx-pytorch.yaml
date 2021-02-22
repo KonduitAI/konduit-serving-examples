@@ -1,0 +1,55 @@
+---
+host: "0.0.0.0"
+pipeline:
+  steps:
+  - '@type': "PYTHON"
+    python_config:
+      append_type: "BEFORE"
+      extra_inputs: {}
+      import_code_path: "init_script.py"
+      python_code_path: "run_script.py"
+      io_inputs:
+        image:
+          python_type: "image"
+          secondary_type: "NONE"
+          type: "IMAGE"
+      io_outputs:
+        bmi_value:
+          python_type: "float"
+          secondary_type: "NONE"
+          type: "DOUBLE"
+        boxes:
+          python_type: "list"
+          secondary_type: "DOUBLE"
+          type: "LIST"
+        predictions:
+          python_type: "numpy.ndarray"
+          secondary_type: "DOUBLE"
+          type: "NDARRAY"
+      job_suffix: "konduit_job"
+      python_config_type: "CONDA"
+      python_path: "1"
+      environment_name: "base"
+      python_path_resolution: "STATIC"
+      python_inputs: {}
+      python_outputs: {}
+      return_all_inputs: false
+      setup_and_run: false
+  - '@type': "CLASSIFIER_OUTPUT"
+    input_name: "predictions"
+    label_name: "bmi_class"
+    labels:
+      - UnderWeight
+      - Normal_Range
+      - OverWeight
+      - Obese_ClassI
+      - Obese_ClassII
+      - Obese_ClassIII
+      - Obese_ClassIV
+      - None
+port: 9009
+protocol: "HTTP"
+static_content_index_page: "/index.html"
+static_content_root: "web-app"
+static_content_url: "/web-app/*"
+
