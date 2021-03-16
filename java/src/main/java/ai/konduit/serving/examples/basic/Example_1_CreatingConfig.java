@@ -1,6 +1,5 @@
 package ai.konduit.serving.examples.basic;
 
-import ai.konduit.serving.pipeline.api.pipeline.Pipeline;
 import ai.konduit.serving.pipeline.impl.pipeline.SequencePipeline;
 import ai.konduit.serving.pipeline.impl.step.logging.LoggingStep;
 import ai.konduit.serving.vertx.config.InferenceConfiguration;
