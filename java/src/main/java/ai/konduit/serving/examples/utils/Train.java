@@ -109,10 +109,9 @@ public class Train {
     }
 
     @Data
-    @Accessors(fluent = true)
     @Builder
-    @AllArgsConstructor
-    public class ModelTrainResult {
+    @Accessors(fluent = true)
+    public static class ModelTrainResult {
         String modelPath;
 
         @Singular

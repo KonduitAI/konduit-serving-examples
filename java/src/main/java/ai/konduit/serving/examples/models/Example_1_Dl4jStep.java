@@ -10,17 +10,22 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.VertxOptions;
+import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.Arrays;
 
 public class Example_1_Dl4jStep {
     public static void main(String[] args) throws Exception {
+        Train.ModelTrainResult modelTrainResult = Train.dl4jIrisModel();
+
         InferenceConfiguration inferenceConfiguration = new InferenceConfiguration();
         inferenceConfiguration.pipeline(SequencePipeline.builder()
                 .add(new DL4JStep()
-                        .modelUri(Train.dl4jIrisModel())
-                        .inputNames("layer0")
-                        .outputNames("layer0"))
-                .build()
+                        .modelUri(modelTrainResult.modelPath())
+                        .inputNames(modelTrainResult.inputNames())
+                        .outputNames(modelTrainResult.outputNames())
+                ).build()
         );
 
         DeployKonduitServing.deploy(new VertxOptions(), new DeploymentOptions(),
@@ -39,7 +44,9 @@ public class Example_1_Dl4jStep {
                             String result = Unirest.post(String.format("http://localhost:%s/predict", runnningPort))
                                     .header("Content-Type", "application/json")
                                     .header("Accept", "application/json")
-                                    .body(new JSONObject().put("layer0", "input_value"))
+                                    .body(new JSONObject().put("layer0",
+                                            new JSONArray().put(Arrays.asList(1.0, 1.0, 1.0, 1.0)))
+                                    )
                                     .asString().getBody();
 
                             System.out.format("Result from server : %s%n", result);
