@@ -1,9 +1,6 @@
 package ai.konduit.serving.examples.utils;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Singular;
+import lombok.*;
 import lombok.experimental.Accessors;
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
@@ -17,6 +14,7 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.util.ModelSerializer;
+import org.nd4j.common.io.ClassPathResource;
 import org.nd4j.evaluation.classification.Evaluation;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -29,6 +27,7 @@ import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 public class Train {
@@ -108,9 +107,19 @@ public class Train {
                 .build();
     }
 
+    public static ModelTrainResult kerasMnistModel() throws IOException {
+        return ModelTrainResult.builder()
+                .modelPath(new ClassPathResource("models/keras/mnist/keras-mnist.h5").getFile().getAbsolutePath())
+                .inputName("input_layer")
+                .outputName("output_layer")
+                .build();
+    }
+
     @Data
     @Builder
     @Accessors(fluent = true)
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class ModelTrainResult {
         String modelPath;
 
