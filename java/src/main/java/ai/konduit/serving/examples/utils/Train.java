@@ -115,6 +115,14 @@ public class Train {
                 .build();
     }
 
+    public static ModelTrainResult onnxIrisModel() throws IOException {
+        return ModelTrainResult.builder()
+                .modelPath(new ClassPathResource("models/onnx/iris/iris.onnx").getFile().getAbsolutePath())
+                .inputName("input")
+                .outputName("output")
+                .build();
+    }
+
     @Data
     @Builder
     @Accessors(fluent = true)

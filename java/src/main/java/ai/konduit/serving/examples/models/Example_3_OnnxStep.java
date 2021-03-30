@@ -1,4 +1,66 @@
 package ai.konduit.serving.examples.models;
 
+import ai.konduit.serving.examples.utils.Train;
+import ai.konduit.serving.models.onnx.step.ONNXStep;
+import ai.konduit.serving.pipeline.impl.pipeline.SequencePipeline;
+import ai.konduit.serving.vertx.api.DeployKonduitServing;
+import ai.konduit.serving.vertx.config.InferenceConfiguration;
+import ai.konduit.serving.vertx.config.InferenceDeploymentResult;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import io.vertx.core.DeploymentOptions;
+import io.vertx.core.VertxOptions;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.Arrays;
+
 public class Example_3_OnnxStep {
+    public static void main(String[] args) throws IOException {
+        Train.ModelTrainResult modelTrainResult = Train.onnxIrisModel();
+
+        InferenceConfiguration inferenceConfiguration = new InferenceConfiguration();
+        inferenceConfiguration.pipeline(SequencePipeline.builder()
+                .add(new ONNXStep()
+                        .modelUri(modelTrainResult.modelPath())
+                        .inputNames(modelTrainResult.inputNames())
+                        .outputNames(modelTrainResult.outputNames())
+                ).build()
+        );
+
+        DeployKonduitServing.deploy(new VertxOptions(), new DeploymentOptions(),
+                inferenceConfiguration,
+                handler -> {
+                    if (handler.succeeded()) { // If the server is sucessfully running
+                        // Getting the result of the deployment
+                        InferenceDeploymentResult inferenceDeploymentResult = handler.result();
+                        int runnningPort = inferenceDeploymentResult.getActualPort();
+                        String deploymentId = inferenceDeploymentResult.getDeploymentId();
+
+                        System.out.format("The server is running on port %s with deployment id of %s%n",
+                                runnningPort, deploymentId);
+
+                        try {
+                            String result = Unirest.post(String.format("http://localhost:%s/predict", runnningPort))
+                                    .header("Content-Type", "application/json")
+                                    .header("Accept", "application/json")
+                                    .body(new JSONObject().put("input",
+                                            new JSONArray().put(Arrays.asList(1.0, 1.0, 1.0, 1.0)))
+                                    )
+                                    .asString().getBody();
+
+                            System.out.format("Result from server : %s%n", result);
+
+                            System.exit(0);
+                        } catch (UnirestException e) {
+                            e.printStackTrace();
+                            System.exit(1);
+                        }
+                    } else { // If the server failed to run
+                        System.out.println(handler.cause().getMessage());
+                        System.exit(1);
+                    }
+                });
+    }
 }
