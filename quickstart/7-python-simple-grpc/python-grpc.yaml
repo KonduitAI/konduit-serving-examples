@@ -1,0 +1,35 @@
+---
+host: "0.0.0.0"
+pipeline:
+  steps:
+  - '@type': "PYTHON"
+    python_config:
+      append_type: "BEFORE"
+      extra_inputs: {}
+      import_code_path: "init_script.py"
+      python_code_path: "run_script.py"
+      io_inputs:
+        a:
+          python_type: "float"
+          secondary_type: "NONE"
+          type: "DOUBLE"
+        b:
+          python_type: "float"
+          secondary_type: "NONE"
+          type: "DOUBLE"
+      io_outputs:
+        c:
+          python_type: "float"
+          secondary_type: "NONE"
+          type: "DOUBLE"
+      job_suffix: "konduit_job"
+      python_config_type: "CONDA"
+      python_path: "1"
+      environment_name: "base"
+      python_path_resolution: "STATIC"
+      python_inputs: {}
+      python_outputs: {}
+      return_all_inputs: false
+      setup_and_run: false
+port: 8082
+protocol: "GRPC"
